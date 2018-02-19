@@ -1,0 +1,87 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dashboard_grid{
+  margin: 24px;
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 1em;
+}
+
+
+@media (max-width:992px) {
+  .dashboard_grid{
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width:768px) {
+  .dashboard_grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width:500px) {
+  .dashboard_grid{
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.center_content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pointer:hover{
+  cursor: pointer;
+}
+
+.nav_items{
+  display: flex;
+  justify-content: center;
+  flex-flow: row;
+  align-items: center;
+}
+
+.nav_item{
+  margin: 5px !important;
+  padding: .4px 20px !important;
+}
+
+.nav_item:hover{
+  padding: 1px 22px !important;
+}
+
+.study_container{
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 1em;
+}
