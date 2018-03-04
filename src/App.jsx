@@ -13,7 +13,7 @@ import Dashboard from './components/Dashboard'
 import Header from './components/Header';
 
 import { firebaseAuth } from './config/constants';
-import { PrivateRoute } from './helpers/routes';
+// import { PrivateRoute } from './helpers/routes';
 
 
 
@@ -23,7 +23,7 @@ class App extends Component {
     this.state = {
       authed: false,
       loading: false,
-      user: ''
+      user: '',
     };
   }
   
@@ -36,6 +36,17 @@ class App extends Component {
       })
     })
   }
+
+  
+  // componentWillReceiveProps(nextProps){
+  //   //TODO ParentBlockId needs to relate to a parent not previous.
+  //   // const path = 'blocks/'+ nextProps.match.params.blockId;
+  //   console.log('header ',nextProps);
+  //   // this.setState({parentBlockId: this.state.id});
+  //   // listen(path).on("value", this.gotData, this.errData);
+  //   // this.setState({id:nextProps.match.params.blockId});
+  // }
+
   componentWillUnmount () {
     this.removeListener()
   }
@@ -44,11 +55,12 @@ class App extends Component {
       <MuiThemeProvider>
         <Router>
           <div className="App">
-            <Header authed={this.state.authed} />
-            {(this.state.user ? <Route path="/" exact render={() => (<Dashboard user={this.state.user} />)} /> :  <Route path="/" exact component={About} /> )}
+            <Header ref="headerComponent" authed={this.state.authed} />
+            {(this.state.user ? <Route path="/" exact render={() => (<Dashboard user={this.state.user} hideBarTitle={()=>this.refs.headerComponent.hideBarTitle()} />)} /> :  <Route path="/" exact component={About} /> )}
             {(this.state.user ? <Route path="/about" exact component={About} />  : null )}
             {(this.state.user ? <Route path="/profile" exact component={Profile} />  : null )}
-            <Route authed={this.state.authed} path="/block/:blockId" component={Block} />
+            {/* <Route authed={this.state.authed} path="/block/:blockId" getCurrentBlock={this.getCurrentBlock} component={Block} /> */}
+            <Route authed={this.state.authed} path="/block/:blockId" render={props => <Block getCurrentBlock={(elem)=>this.refs.headerComponent.getCurrentBlock(elem)} {...props} />} />
             <Route authed={this.state.authed} path="/user/:userId" component={User} />
             <Route path="/contact" exact component={Contact} /> 
             {/* TODO make this <Footer />  */}

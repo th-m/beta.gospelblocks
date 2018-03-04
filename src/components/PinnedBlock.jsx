@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import {  Link } from 'react-router-dom';
 
-import { listen, update } from '../helpers/database'
+import { listen } from '../helpers/database'
 
 import FontAwesome  from 'react-fontawesome';
 import CRUDBlockDialog from './CRUDBlockDialog'
 
-import {Card, CardActions, CardMedia, CardHeader, CardTitle} from 'material-ui/Card';
+import {Card, CardActions, CardHeader, CardTitle} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import Dialog from 'material-ui/Dialog';
-import TextField from 'material-ui/TextField';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+// import Dialog from 'material-ui/Dialog';
+// import TextField from 'material-ui/TextField';
+// import DropDownMenu from 'material-ui/DropDownMenu';
+// import MenuItem from 'material-ui/MenuItem';
 
 export default class PinnedBlock extends Component {
   constructor(props){

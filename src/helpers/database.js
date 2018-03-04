@@ -43,9 +43,11 @@ export function getBlock({destructure_obj}){
 }
 
 export function createBlock(block){
+  console.log(block);
   // clean the object of any empty values
   clean(block);
   
+  console.log(block);
   // if we have a id provided to the function we will use that 
   if(block.id){
     let updates = {};

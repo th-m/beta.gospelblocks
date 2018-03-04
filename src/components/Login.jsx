@@ -2,7 +2,7 @@ import React from 'react';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import { login, resetPassword, userEmailProviders } from '../helpers/auth'
+import { login, userEmailProviders } from '../helpers/auth'
 
 
 
@@ -22,7 +22,8 @@ export default class Login extends React.Component {
       authed: false,
       buttonMessage: 'Enter Your Email',
       email: '',
-      pw: ''
+      pw: '',
+      open: false
     };
   }
 

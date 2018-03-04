@@ -27,8 +27,8 @@ export default class LibraryBreadCrumbs extends Component {
 
   componentDidMount(){
     setTimeout(()=>{
-            console.log("timeout this", this);
-            console.log("timeout this tab_1",   this.tab_1);
+            // console.log("timeout this", this);
+            // console.log("timeout this tab_1",   this.tab_1);
             this.setState({tabs:{'0':'Library', '1':'Old Testament'}});
             this.setState({selectedTab:1});
             this.tab_1.handleClick();

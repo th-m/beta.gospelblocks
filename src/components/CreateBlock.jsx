@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
 import FontAwesome  from 'react-fontawesome';
 import {Card, CardActions} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import Dialog from 'material-ui/Dialog';
-import TextField from 'material-ui/TextField';
+// import Dialog from 'material-ui/Dialog';
+// import TextField from 'material-ui/TextField';
 import CRUDBlockDialog from './CRUDBlockDialog'
 
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+// import DropDownMenu from 'material-ui/DropDownMenu';
+// import MenuItem from 'material-ui/MenuItem';
 
-import { createBlock, pinBlock } from '../helpers/database'
+// import { createBlock, pinBlock } from '../helpers/database'
 import '../styles/App.css';
 
 
@@ -24,7 +24,6 @@ export default class CreateBlock extends Component {
   }
   
   componentWillReceiveProps(nextProps){
-    console.log("createBlock", nextProps);
     this.setState({parentBlockId: nextProps.parentBlockId})
   }
   // componentWillUpdate(){

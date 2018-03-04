@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
 import FontAwesome  from 'react-fontawesome';
-import {Card, CardActions} from 'material-ui/Card';
+// import {Card, CardActions} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
@@ -24,7 +24,7 @@ export default class CRUDBlockDialog extends Component {
 
     if(props.parentBlockId)
       defaultBlock.parentBlockId = props.parentBlockId;
-      
+    console.log("start the crud", props.parentBlockId, defaultBlock);
     this.state = {
       dialogOpen: false,
       blockData : (props.blockData ? props.blockData: Object.create(defaultBlock)),
@@ -38,8 +38,6 @@ export default class CRUDBlockDialog extends Component {
   }
   
   componentWillReceiveProps(nextProps){
-    console.log('nextProps',nextProps);
-    console.log(this.state);
     if(nextProps.blockData) 
       this.setState({blockData:nextProps.blockData});
     if(nextProps.parentBlockId)
@@ -53,7 +51,7 @@ export default class CRUDBlockDialog extends Component {
     }
     this.setState({dialogOpen: !this.state.dialogOpen});
     // NOTE Save to the database when dialog is closed
-    if(this.state.dialogOpen && this.state.blockData.title || this.state.blockData.description && this.props.blockId){
+    if((this.state.dialogOpen && this.state.blockData.title) || (this.state.blockData.description && this.props.blockId)){
       const path = 'blocks/'+ this.props.blockId;
       update(path,this.state.blockData);  
     }else{
@@ -75,9 +73,10 @@ export default class CRUDBlockDialog extends Component {
   }
   
   addBlock = () => {
-    // console.log(this.state);
-  
-    createBlock(this.state.blockData)
+    let blockData = this.state.blockData;
+    if(this.props.parentBlockId)
+      blockData.parentBlockId = this.props.parentBlockId;
+    createBlock(blockData)
     .then( x => {
         console.log("block created", this.state, this.props);
         if(this.props.pinIt) 
@@ -124,7 +123,7 @@ export default class CRUDBlockDialog extends Component {
                onClick={this.trashBlock}
                style={{float:'right'}}
                name='trash'
-               size='1x'
+               size='lg'
              />
            </div>
                    
