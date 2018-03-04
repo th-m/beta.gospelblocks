@@ -11,49 +11,44 @@ const styles = {
   },
 };
 
-function handleActive(tab) {
-  console.log(`A tab with this route property ${tab.props['data-route']} was activated.`);
-}
-
-
 export default class LibraryBreadCrumbs extends Component {
   constructor(props){
     super(props);
     this.state = {
       selectedTab: 0,
-      tabs:{'0':'Library'}
+      moveDeeper: false,
+      tabs:props.tabs
     };
   }
 
-  componentDidMount(){
-    setTimeout(()=>{
-            // console.log("timeout this", this);
-            // console.log("timeout this tab_1",   this.tab_1);
-            this.setState({tabs:{'0':'Library', '1':'Old Testament'}});
-            this.setState({selectedTab:1});
-            this.tab_1.handleClick();
-            
-    }, 2000);
+  
+  componentWillReceiveProps(nextProps){
+    this.setState({tabs:nextProps.tabs});
   }
   
-  errData = (error) => {
-    console.log("errData", error);
-    
+  componentDidUpdate(){
+    let d = this.state.tabs[this.state.tabs.length-1].depth;
+    if(this.state.moveDeeper){
+      console.log(d);
+      this['tab_'+d].handleClick();
+      this.setState({moveDeeper:false});
+    }
+    console.log(this.state.tabs);
   }
   
+  movePointer = () => {
+      this.setState({moveDeeper:true});
+  }
+  
+  handleActive = (tab) => {
+    console.log(`A tab with this route property ${tab.props['data-route']} was activated.`, tab.props['data-route']);
+    this.props.breadClick(tab.props['data-route'])
+  }
+
   render() {
     return (
       <Tabs initialSelectedIndex={this.state.selectedTab}>
-          {Object.keys(this.state.tabs).map((key,index) => <Tab ref={(c) => this['tab_'+key] = c} label={this.state.tabs[key]} onActive={handleActive} />)}
-          
-         {/* >
-         <Tab
-           label="onActive"
-           data-route="/home2"
-           onActive={handleActive}
-         >
-          
-         </Tab> */}
+          {this.state.tabs.map( x => <Tab ref={(c) => this['tab_'+x.depth] = c} key={x.depth} data-route={{depth:x.depth,key:x.key, title:x.title}} label={x.title} onActive={this.handleActive}  />)}
       </Tabs>
     );
   }

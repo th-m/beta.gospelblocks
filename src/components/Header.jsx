@@ -5,9 +5,7 @@ import MainMenu from './MainMenu';
 import {  Link } from 'react-router-dom';
 import { listen } from '../helpers/database';
   
-function handleClick(e) {
-  console.log("Kicked")
-}
+
 
 export default class Header extends React.Component {
   constructor(){
@@ -31,38 +29,10 @@ export default class Header extends React.Component {
       this.setState({blockTitle:''});
     }
   }
-  // componentWillReceiveProps(nextProps){
-  //   //TODO ParentBlockId needs to relate to a parent not previous.
-  //   // const path = 'blocks/'+ nextProps.match.params.blockId;
-  //   console.log('header ',nextProps);
-  //   // this.setState({parentBlockId: this.state.id});
-  //   // listen(path).on("value", this.gotData, this.errData);
-  //   // this.setState({id:nextProps.match.params.blockId});
-  // }
-  // componentDidMount(){
-  //   // this.props.getCurrentBlock(this.props.match.params.blockId);
-  //   if(this.state.id){
-  //     console.log("hello buddy");
-  //     const path = 'blocks/'+ this.state.id;
-  //     listen(path).on("value", this.gotData, this.errData);
-  //   }
-  // 
-  // }
-  // 
-  // componentWillReceiveProps(nextProps){
-  //   //TODO ParentBlockId needs to relate to a parent not previous.
-  //   const path = 'blocks/'+ nextProps.match.params.blockId;
-  //   this.setState({parentBlockId: this.state.id});
-  //   listen(path).on("value", this.gotData, this.errData);
-  //   this.setState({id:nextProps.match.params.blockId});
-  //   this.props.getCurrentBlock(nextProps.match.params.blockId);
-  // }
+
   hideBarTitle = () => {
-    console.log('hello');
     let blockData = this.state.blockData;
-    // blockData.blockTitle = '';
     this.setState({ blockTitle: '' });
-      // location.replace("https://www.w3schools.com")
   }
   
   errData = (error) => {
@@ -94,7 +64,7 @@ export default class Header extends React.Component {
         <AppBar
             style={{textAlign: 'left'}}
             // TODO: make BrandIcon component
-            title={ <Link to='/'> <span onClick={handleClick} style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
+            title={ <Link to='/'> <span style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
             iconElementRight={(this.props.authed? <MainMenu /> : <Login />)}
             showMenuIconButton={false}
           />

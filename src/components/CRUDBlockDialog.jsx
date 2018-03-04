@@ -24,7 +24,7 @@ export default class CRUDBlockDialog extends Component {
 
     if(props.parentBlockId)
       defaultBlock.parentBlockId = props.parentBlockId;
-    console.log("start the crud", props.parentBlockId, defaultBlock);
+    // console.log("start the crud", props.parentBlockId, defaultBlock);
     this.state = {
       dialogOpen: false,
       blockData : (props.blockData ? props.blockData: Object.create(defaultBlock)),
