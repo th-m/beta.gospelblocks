@@ -31,7 +31,7 @@ export default class Header extends React.Component {
   }
 
   hideBarTitle = () => {
-    let blockData = this.state.blockData;
+    // let blockData = this.state.blockData;
     this.setState({ blockTitle: '' });
   }
   
@@ -41,7 +41,6 @@ export default class Header extends React.Component {
   
   gotData = (data) => {
     const blockData = data.val();
-    // console.log('This is the data in the header',blockData);
     this.setState({ blockData: blockData });
     this.setState({ blockTitle: blockData.title });
     if(blockData.parentBlockId){

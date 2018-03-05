@@ -83,6 +83,17 @@ export function updateChildren(blockId, childId){
     update(path, children);
   })
 }
+export function addBit(blockId, bit){
+  const path = '/blocks/'+ blockId +'/bits';
+  return  db.ref(path).once('value').then(function(data) {
+      let bits = {'1':bit};
+    if(data.val()){
+      bits = data.val();
+      bits[Object.keys(bits).length+1] = bit;
+    }
+    update(path, bits);
+  })
+}
 
 export function update(path, data){
   console.log("data base update",path, data);

@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import Slider from 'material-ui/Slider';
+// import Slider from 'material-ui/Slider';
 
-const styles = {
-  headline: {
-    fontSize: 24,
-    paddingTop: 16,
-    marginBottom: 12,
-    fontWeight: 400,
-  },
-};
+
+// NOTE we need to sytle the breadcrumb manager area
+// const styles = {
+//   headline: {
+//     fontSize: '1em',
+//     paddingTop: 16,
+//     marginBottom: 12,
+//     fontWeight: 400,
+//   },
+// };
 
 export default class LibraryBreadCrumbs extends Component {
   constructor(props){
@@ -27,13 +29,13 @@ export default class LibraryBreadCrumbs extends Component {
   }
   
   componentDidUpdate(){
+    // HACK we need to set a boolean to monitor this to keep react from updating itself so long. 
+    // This is likely due to some poor design in the code.
     let d = this.state.tabs[this.state.tabs.length-1].depth;
     if(this.state.moveDeeper){
-      console.log(d);
       this['tab_'+d].handleClick();
       this.setState({moveDeeper:false});
     }
-    console.log(this.state.tabs);
   }
   
   movePointer = () => {

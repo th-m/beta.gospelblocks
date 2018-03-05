@@ -58,7 +58,7 @@ export default class Block extends Component {
         </div>
         <div className="study_container">
           <Library />
-          <Compendium blockId=""/>
+          <Compendium blockId={this.state.id}/>
         </div>
         
       </div>

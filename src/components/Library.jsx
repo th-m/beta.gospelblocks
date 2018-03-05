@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 // import {Breadcrumbs} from 'material-ui-breadcrumbs/Breadcrumbs';
 import Paper from 'material-ui/Paper';
 import { getVolumes, getBooks, getChapters, getVerses } from '../helpers/scriptureAPI';
-
+import Draggable from 'react-draggable'; 
+// import { DragSource } from 'react-dnd';
 import LibraryBreadCrumbs from './LibraryBreadCrumbs';
 
 const style = {
@@ -11,11 +12,7 @@ const style = {
   textAlign: 'center',
   display: 'inline-block',
 };
-const className = 'custom-class';
-const style2 = {
-  width: '50%',
-  height: '48px',
-};
+
 export default class Library extends Component {
   constructor(props){
     super(props);
@@ -47,6 +44,36 @@ export default class Library extends Component {
     getVerses(this.state.volume, this.state.book, i).then( x => this.setState({shelf:x, preface:'verse_'}));
   }
   
+  handleStart = (e) => {
+    let verseData = {
+      type: 'verse',
+      title : e.target.querySelector('.title').innerHTML,
+      text :e.target.querySelector('.text').innerHTML,
+      volumeId : this.state.volume,
+      bookId : this.state.book,
+      chapterId : this.state.chapter
+    }
+    // console.log(verseData);
+    e.dataTransfer.setData("verseData",  JSON.stringify(verseData));
+  }
+  
+  // This works with the drop event in the compoendium component
+  handleDrag = (e) => {
+    // console.log('handle drag',e);
+    e.dataTransfer.setData("t",  JSON.stringify({test:'data'}));
+    // console.log('handleDrag', e);
+  }
+  
+  handleStop = (e) => {
+    // console.log('handleStop', e);
+  }
+  
+  // cloneMover = (e) => {
+  //   let cln = e.target.cloneNode(true);
+  //   let rect = cln.getBoundingClientRect();
+  //   console.log('handleStart', cln, 'rect', rect);
+  // }
+  // 
   handleClick= (e) => {
     let tabs = this.state.tabs;
     switch (e.target.dataset.depth) {
@@ -81,7 +108,7 @@ export default class Library extends Component {
   }
   
   breadClick= (data) => {
-    if(this.state.tabs[this.state.tabs.length-1].depth != data.depth){
+    if(this.state.tabs[this.state.tabs.length-1].depth !== data.depth){
       let tabs = this.state.tabs;
     
       switch (data.depth) {
@@ -118,14 +145,41 @@ export default class Library extends Component {
        <Paper style={style} zDepth={1} rounded={false} >
          <LibraryBreadCrumbs ref="breadcrumbs" tabs={this.state.tabs} breadClick={this.breadClick}/>
          <div>
-             {this.state.shelf.map(x => <Paper >
-               <h3 key={x.id} data-key={(x.id?x.id:x.chapter)} data-depth={this.state.depth} data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} onClick={this.handleClick}> 
-                 {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
-               </h3> 
-               {(this.state.depth >= 3)?
-                 <p> {x.verse_scripture} </p>
-               :null}
-             </Paper> )}
+             {this.state.shelf.map(x => {
+               {return (this.state.depth < 3)?    
+                   (<Paper >
+                    <h3 key={(x.id?x.id:x.chapter)} data-key={(x.id?x.id:x.chapter)} data-depth={this.state.depth} data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} onClick={this.handleClick}> 
+                      {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
+                    </h3> 
+                  </Paper>)     
+                   :
+                  (<div draggable="true" onDragStart={this.handleStart}>
+                        <Paper >
+                         <h3  
+                           className="title" 
+                           key={(x.id?x.id:x.chapter)} 
+                           data-key={(x.id?x.id:x.chapter)} 
+                           data-depth={this.state.depth} 
+                           data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} 
+                           onClick={this.handleClick}> 
+                           {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
+                         </h3> 
+                         <p className="text"> {x.verse_scripture} </p>
+                       </Paper>
+                     </div>)
+                  // (<Draggable onStart={this.handleStart} onDrag={this.handleDrag} onStop={this.handleStop}>
+                  //     <div>
+                  //       <Paper >
+                  //        <h3 key={(x.id?x.id:x.chapter)} data-key={(x.id?x.id:x.chapter)} data-depth={this.state.depth} data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} onClick={this.handleClick}> 
+                  //          {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
+                  //        </h3> 
+                  //        <p> {x.verse_scripture} </p>
+                  //      </Paper>
+                  //    </div>
+                  //  </Draggable>)
+                 }
+               })
+             }
          </div>       
        </Paper>
     );
