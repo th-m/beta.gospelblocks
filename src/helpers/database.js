@@ -38,16 +38,25 @@ function clean(obj) {
   }
 }
 
+export function getUsersList(){
+  const path = '/users/';
+  return  db.ref(path).once('value').then(function(data) {
+    // let d = data.val();
+    // return Object.keys(d).map(x => d[x].info);
+    return data.val();
+  })
+}
+
 export function getBlock({destructure_obj}){
   return "false";
 }
 
 export function createBlock(block){
-  console.log(block);
+  // console.log(block);
   // clean the object of any empty values
   clean(block);
   
-  console.log(block);
+  // console.log(block);
   // if we have a id provided to the function we will use that 
   if(block.id){
     let updates = {};

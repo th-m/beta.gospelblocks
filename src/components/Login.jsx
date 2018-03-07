@@ -2,7 +2,7 @@ import React from 'react';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import { login, userEmailProviders } from '../helpers/auth'
+import { login, userEmailProviders, auth } from '../helpers/auth'
 
 
 
@@ -34,7 +34,13 @@ export default class Login extends React.Component {
         
         userEmailProviders(e.target.value)
           .then((e) => {
+            console.log(e);
              buttonMessage = (e.length > 0? 'Enter Password' : `Sign Up`); 
+             if(e.length > 0){
+               this.setState({authed:true});
+             }else{
+               this.setState({authed:false});
+             }
              this.setState({buttonMessage});
            })
           .catch(() => null);      
@@ -47,10 +53,17 @@ export default class Login extends React.Component {
   }
   signIn = (e) => {
     e.preventDefault()
-    login(this.state.email, this.state.pw)
+    console.log('signin clicked', this.state.authed)
+    if(this.state.authed){
+      login(this.state.email, this.state.pw)
       .catch((error) => {
-          this.setState(setErrorMsg('Invalid username/password.'))
-        })
+        this.setState(setErrorMsg('Invalid username/password.'))
+      })
+    }else{
+      console.log("this happened");
+      auth(this.state.email, this.state.pw).then(x => console.log(x))
+      .catch((error) => { this.setState(setErrorMsg('Invalid username/password.'))})
+    }
   }
   
   handleOpen = () => {

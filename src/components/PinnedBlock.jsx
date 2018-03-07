@@ -8,10 +8,7 @@ import CRUDBlockDialog from './CRUDBlockDialog'
 
 import {Card, CardActions, CardHeader, CardTitle} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-// import Dialog from 'material-ui/Dialog';
-// import TextField from 'material-ui/TextField';
-// import DropDownMenu from 'material-ui/DropDownMenu';
-// import MenuItem from 'material-ui/MenuItem';
+
 
 export default class PinnedBlock extends Component {
   constructor(props){
@@ -31,7 +28,6 @@ export default class PinnedBlock extends Component {
   }
   
   gotData = (data) => {
-    // console.log('pinnedBlock', data.val());
     this.setState({blockData:data.val()});
   }
       

@@ -28,7 +28,7 @@ export default class Dashboard extends Component {
   }
   
   gotData = (data) => {
-    if(data.val().pinnedBlocks){
+    if(data.val() && data.val().pinnedBlocks){
       let pinnedBlocks = Object.keys(data.val().pinnedBlocks).map(key => key); 
       this.setState({pinnedBlocks:pinnedBlocks});
     }else{

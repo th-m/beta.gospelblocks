@@ -38,7 +38,11 @@ export default class Compendium extends Component {
   gotData = (data) => {
     const blockData = data.val();
     console.log(blockData.bits);
-    this.setState({bits:blockData.bits});
+    if(blockData.bits){
+      this.setState({bits:blockData.bits});
+    }else{
+      this.setState({bits:[]});
+    }
     this.state.bits.forEach((x,i)=>console.log(x.title));
   }
   
@@ -76,7 +80,7 @@ export default class Compendium extends Component {
                   <h3>{x.title}</h3>
                   <p>{x.text}</p>
                 </Paper>
-                <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} ata-order={i}>
+                <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={i}>
                   drag here
                 </div>
               </div>
