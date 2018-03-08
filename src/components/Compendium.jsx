@@ -37,7 +37,7 @@ export default class Compendium extends Component {
   
   gotData = (data) => {
     const blockData = data.val();
-    console.log(blockData.bits);
+    // console.log(blockData.bits);
     if(blockData.bits){
       this.setState({bits:blockData.bits});
     }else{

@@ -10,6 +10,7 @@ export default class MultiSelect extends React.Component {
     super()
     this.state = {
       values: [],
+      usersList:[],
       names:[]
     };
     
@@ -17,17 +18,22 @@ export default class MultiSelect extends React.Component {
   
   componentDidMount(){
       let users;
+      let usersList;
       getUsersList().then(x =>  {
         // console.log(x);
        users = Object.keys(x).map(i => x[i].info.email);
-       console.log(users);
+       usersList = Object.keys(x).map(i => x[i].info);
+       console.log(usersList);
        this.setState({names:users})
+       this.setState({usersList})
       });
       // console.log(users);
   }
   
   handleChange = (event, key, values) => {
+    
     this.setState({ values });
+    this.props.handleData({[this.props.name]: values});
   };
 
   
@@ -35,19 +41,19 @@ export default class MultiSelect extends React.Component {
     // change the default comma separated rendering
     return (
       <span style={{ color: "#ff4081" }}>
-        {values.join("; ")}
+        {values.join(", ")}
       </span>
     );
   };
 
   menuItems(values) {
-    return this.state.names.map(name => (
+    return this.state.usersList.map(u => (
       <MenuItem
-        key={name}
+        key={u.uid}
         insetChildren={true}
-        checked={values.includes(name)}
-        value={name}
-        primaryText={name}
+        checked={values.includes(u.email)}
+        value={u.email}
+        primaryText={u.email}
       />
     ));
   }

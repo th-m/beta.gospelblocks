@@ -5,6 +5,28 @@ import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
 import Library from './Library';
 import Compendium from './Compendium';
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+
+
+const SortableItem = SortableElement(({value}) => {
+  console.log(value);
+  return (
+    <li>
+      <BlockNavItem key={value} blockId={value}/>
+    </li>
+  );
+});
+
+const SortableList = SortableContainer(({items}) => {
+  console.log(items)
+  return (
+    <ul>
+      {items.map((value, index) => (
+        <SortableItem key={`item-${index}`} index={index} value={value} />
+      ))}
+    </ul>
+  );
+});
 
 export default class Block extends Component {
   constructor(props){
@@ -46,12 +68,18 @@ export default class Block extends Component {
     this.props.getCurrentBlock(blockData.id);
   }
   
+  onSortEnd = ({oldIndex, newIndex}) => {
+    this.setState({
+      children: arrayMove(this.state.children, oldIndex, newIndex),
+    });
+  };
   
   render(){
     return (
       <div>
         <div className="nav_items">
-          {this.state.children.map(childId => <BlockNavItem key={childId} blockId={childId} /> )}
+          <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} />
+          {/* {this.state.children.map(childId => <BlockNavItem key={childId} blockId={childId} /> )} */}
           <CreateBlock parentBlockId={this.state.id} />
         </div>
         <div className="study_container">

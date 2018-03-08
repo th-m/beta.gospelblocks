@@ -33,7 +33,7 @@ export default class PinnedBlock extends Component {
       
   render(){
     return (
-      <Card>
+      <Card >
         <CardHeader>
             <FontAwesome
               style={{float:'left'}}

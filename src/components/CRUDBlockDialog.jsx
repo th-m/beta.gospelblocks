@@ -31,8 +31,10 @@ export default class CRUDBlockDialog extends Component {
       blockData : (props.blockData ? props.blockData: Object.create(defaultBlock)),
       uid: this.props.uid,
       pinIt: (this.props.pinIt? true: false),
-      viewers: (props.blockData && props.blockData.viewers ? props.blockData.viewers: 1), // default option 1 = public
+      viewers: (props.blockData && props.blockData.viewers ? props.blockData.viewers: 1),
+      viewersList: [], // default option 1 = public
       editors: (props.blockData && props.blockData.editors ? props.blockData.editors: 1), // default option 1 = public
+      editorsList: [],
       isPinned: (this.props.isPinned? true: false),
       uniqueKey: generateLongId()
     };
@@ -97,6 +99,10 @@ export default class CRUDBlockDialog extends Component {
     );    
   }
 
+  handleMultiSelect = (data) => {
+    this.setState(data);
+    console.log(this.state);
+  }
   
   trashBlock = () => {
     if(this.props.isPinned){
@@ -159,7 +165,7 @@ export default class CRUDBlockDialog extends Component {
               <MenuItem id="viewers" value={3} primaryText="Private" />
             </DropDownMenu>
             
-            {(this.state.blockData.viewers == 2)? <MultiSelect /> : null}
+            {(this.state.blockData.viewers == 2)? <MultiSelect name="viewersList" handleData={this.handleMultiSelect} /> : null}
             <br />
           <FontAwesome
              name='pencil'
@@ -172,7 +178,7 @@ export default class CRUDBlockDialog extends Component {
              <MenuItem id="editors" value={3} primaryText="Private" />
            </DropDownMenu>
            
-           {(this.state.blockData.editors == 2)? <MultiSelect /> : null}
+           {(this.state.blockData.editors == 2)? <MultiSelect name="editorsList" handleData={this.handleMultiSelect} /> : null}
         
         </Dialog>
     );
