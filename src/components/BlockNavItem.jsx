@@ -3,14 +3,11 @@ import { listen } from '../helpers/database'
 
 import {  Link } from 'react-router-dom';
 
-// import FontAwesome  from 'react-fontawesome';
 import { Card } from 'material-ui/Card';
-// import FlatButton from 'material-ui/FlatButton';
-// import Dialog from 'material-ui/Dialog';
-// import TextField from 'material-ui/TextField';
 
 export default class Block extends Component {
   constructor(props){
+    console.log(props);
     super(props);
     this.state = {
       editDialogOpen: false,
@@ -31,13 +28,19 @@ export default class Block extends Component {
     this.setState({blockTitle:data.val().title});
   }
   
+  updateCompendium = (e) => {
+    this.props.updateCompendium(this.props.blockId);
+  }
+  redirect = () => {
+    this.props.redirect('/block/'+this.props.blockId);
+  }
   render(){
     return (
-      <Link to={'/block/'+this.props.blockId}>
-        <Card className="pointer nav_item" onClick={this.toggleDialog} >
+      <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
+        <Card className="pointer nav_item" >
             <h3>{this.state.blockTitle}</h3>
         </Card>
-      </Link>
+      </div>
     );
   }
 }

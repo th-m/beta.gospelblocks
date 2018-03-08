@@ -26,13 +26,16 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-ul , li{
+body > ul , body > li{
   list-style-type: none;
   margin: 0;
   padding: 0;
   text-align: center;
 }
 .dashboard_grid ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
   margin: 24px;
   text-align: center;
   display: grid;
@@ -87,6 +90,9 @@ ul , li{
   min-height: 65px;
 }
 .nav_items ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: center;
   flex-flow: row;
@@ -105,7 +111,6 @@ ul , li{
 .nav_item:hover{
   padding: 1px 22px !important;
 }
-
 .study_container{
   height: 75vh;
   max-height: 75vh;
@@ -114,13 +119,45 @@ ul , li{
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 1em;
 }
+@media (max-width:768px) {
+  .study_container{
+    height: 75vh;
+    max-height: 75vh;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 100%);
+    grid-gap: 1em;
+    overflow-x: scroll;
+  }
+  /* .study_container div:first-child{
+      display: none;
+  } */
+}
+
+.libraryWindow h3 , .libraryWindow p , .compendiumWindow h3 , .compendiumWindow p {
+  margin: 4px;
+}
+
+.drop_zone{
+  height: 0;
+  background-color: white;
+  transition: all 0.5s ease;
+  box-shadow: 0px 0px 0px blue;
+}
+
+.drop_zone.ready{
+  height: 7px;
+  background-color: rgba(0, 188, 212, .36);
+  box-shadow: 0px 0px 18px rgb(0, 188, 212);
+}
+
 .study_container > div{
   height: 75vh;
   max-height: 75vh;
   /* overflow-y: scroll; */
 }
 .compendiumWindow, .libraryWindow{
-  height: 66vh;
+  height: 59.4vh;
   overflow-y: scroll;
 }
 .addBlock{

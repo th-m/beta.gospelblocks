@@ -53,6 +53,7 @@ export default class Library extends Component {
       bookId : this.state.book,
       chapterId : this.state.chapter
     }
+    document.querySelectorAll('.drop_zone').forEach(x => x.className+=" ready");
     e.dataTransfer.setData("verseData",  JSON.stringify(verseData));
   }
   
@@ -62,6 +63,10 @@ export default class Library extends Component {
   }
   
   handleStop = (e) => {
+    e.preventDefault();
+    console.log(e);
+    document.querySelectorAll('.drop_zone').forEach(x => x.classList.remove("ready"));
+    // .classList.remove("mystyle");
     // console.log('handleStop', e);
   }
   
@@ -150,7 +155,7 @@ export default class Library extends Component {
                     </h3> 
                   </Paper>)     
                    :
-                  (<div draggable="true" onDragStart={this.handleStart}>
+                  (<div draggable="true" onDragStart={this.handleStart} onDragEnd={this.handleStop} >
                         <Paper >
                          <h3  
                            className="title" 
