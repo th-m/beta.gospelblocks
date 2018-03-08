@@ -4,7 +4,7 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import { listen, addBit } from '../helpers/database';
 
 const style = {
-  height: '100%',
+  height: '74vh',
   width: '100%',
   textAlign: 'center',
   display: 'inline-block',
@@ -70,23 +70,25 @@ export default class Compendium extends Component {
          <Tabs>
              <Tab  label="Compendium"  />)
          </Tabs>
-         <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order="0">
-           drag here
-         </div> 
-          {this.state.bits.map((x, i) => {
-            return(
-              <div>
-                <Paper >
-                  <h3>{x.title}</h3>
-                  <p>{x.text}</p>
-                </Paper>
-                <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={i}>
-                  drag here
+         <div className="compendiumWindow">
+           <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order="0">
+             drag here
+           </div> 
+            {this.state.bits.map((x, i) => {
+              return(
+                <div>
+                  <Paper >
+                    <h3>{x.title}</h3>
+                    <p>{x.text}</p>
+                  </Paper>
+                  <div onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={i}>
+                    drag here
+                  </div>
                 </div>
-              </div>
-            )
-          })
-        }
+              )
+            })
+          }
+        </div> 
        </Paper>
     );
   }

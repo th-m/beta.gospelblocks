@@ -7,7 +7,7 @@ import Draggable from 'react-draggable';
 import LibraryBreadCrumbs from './LibraryBreadCrumbs';
 
 const style = {
-  height: '100%',
+  height: '74vh',
   width: '100%',
   textAlign: 'center',
   display: 'inline-block',
@@ -141,7 +141,7 @@ export default class Library extends Component {
     return (
        <Paper style={style} zDepth={1} rounded={false} >
          <LibraryBreadCrumbs ref="breadcrumbs" tabs={this.state.tabs} breadClick={this.breadClick}/>
-         <div>
+         <div className="libraryWindow">
              {this.state.shelf.map(x => {
                {return (this.state.depth < 3)?    
                    (<Paper >

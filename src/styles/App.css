@@ -107,12 +107,22 @@ ul , li{
 }
 
 .study_container{
+  height: 75vh;
+  max-height: 75vh;
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 1em;
 }
-
+.study_container > div{
+  height: 75vh;
+  max-height: 75vh;
+  /* overflow-y: scroll; */
+}
+.compendiumWindow, .libraryWindow{
+  height: 66vh;
+  overflow-y: scroll;
+}
 .addBlock{
   color:white;
   position:absolute;
