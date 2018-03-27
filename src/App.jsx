@@ -55,12 +55,13 @@ class App extends Component {
       <MuiThemeProvider>
         <Router>
           <div className="App">
-            <Header ref="headerComponent" authed={this.state.authed} />
+            {/* <Route path="/" render={props =>  <Header ref="headerComponent" authed={this.state.authed} updateCompendium={(x)=>this.refs.blockComponent.updateCompendium(x)} {...props} />} /> */}
+            <Header ref="headerComponent" authed={this.state.authed} updateCompendium={(x)=>this.refs.blockComponent.updateCompendium(x)}/>
             {(this.state.user ? <Route path="/" exact render={() => (<Dashboard user={this.state.user} hideBarTitle={()=>this.refs.headerComponent.hideBarTitle()} />)} /> :  <Route path="/" exact component={About} /> )}
             {(this.state.user ? <Route path="/about" exact component={About} />  : null )}
             {(this.state.user ? <Route path="/profile" exact component={Profile} />  : null )}
             {/* <Route authed={this.state.authed} path="/block/:blockId" getCurrentBlock={this.getCurrentBlock} component={Block} /> */}
-            <Route authed={this.state.authed} path="/block/:blockId" render={props => <Block getCurrentBlock={(elem)=>this.refs.headerComponent.getCurrentBlock(elem)} {...props} />} />
+            <Route authed={this.state.authed} path="/block/:blockId" render={props => <Block ref="blockComponent" getCurrentBlock={(elem)=>this.refs.headerComponent.getCurrentBlock(elem)} {...props} />} />
             <Route authed={this.state.authed} path="/user/:userId" component={User} />
             <Route path="/contact" exact component={Contact} /> 
             {/* TODO make this <Footer />  */}

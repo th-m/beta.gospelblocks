@@ -43,7 +43,7 @@ export default class LibraryBreadCrumbs extends Component {
   }
   
   handleActive = (tab) => {
-    console.log(`A tab with this route property ${tab.props['data-route']} was activated.`, tab.props['data-route']);
+    // console.log(`A tab with this route property ${tab.props['data-route']} was activated.`, tab.props['data-route']);
     this.props.breadClick(tab.props['data-route'])
   }
 

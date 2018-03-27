@@ -11,6 +11,21 @@ function generateId(){
   return bid;
 }
 
+export function validateYouTubeUrl(url){
+        if (url != undefined || url != '') {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            if (match && match[2].length == 11) {
+                // Do anything for being valid
+                // if need to change the url to embed url then use below line
+                return 'https://www.youtube.com/embed/' + match[2] + '?autoplay=0';
+            }
+            else {
+                return false;
+            }
+        }
+}
+
 export function generateLongId(){
   let bid = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -75,10 +90,24 @@ export function createBlock(block){
 }
 
 export function pinBlock(uid, blockId){
-  let updates = {};
-  updates['users/'+ uid +'/pinnedBlocks/' + blockId] = blockId;
-  return ref.update(updates);
+  // let updates = {};
+  const path = 'users/'+ uid +'/pinnedBlocks';
+  return  db.ref(path).once('value').then(function(data) {
+    let pins = {'1': blockId};
+    if(data.val()){
+      pins = data.val();
+      pins[Object.keys(pins).length+1] = blockId;
+    }
+    update(path, pins);
+  })
+    // upd
+  // updates['users/'+ uid +'/pinnedBlocks/' + blockId] = blockId;
+  // return ref.update(updates);
 }
+
+// export function updateList(path, arr){
+//   update(path, arr);
+// }
 
 export function updateChildren(blockId, childId){
   const path = '/blocks/'+ blockId +'/children';
@@ -86,26 +115,41 @@ export function updateChildren(blockId, childId){
     let children = {'1': childId};
     if(data.val()){
       children = data.val();
-      children[Object.keys(children).length+1] = childId;
+      // console.log(children, children.values());
+      if(!Object.values(children).includes(childId)){
+        children[Object.keys(children).length+1] = childId;
+      }
     }
     
     update(path, children);
   })
 }
-export function addBit(blockId, bit){
+export function addBit(blockId, bit, order = null){
   const path = '/blocks/'+ blockId +'/bits';
   return  db.ref(path).once('value').then(function(data) {
-      let bits = {'1':bit};
+    let bits = {'1':bit};
     if(data.val()){
       bits = data.val();
-      bits[Object.keys(bits).length+1] = bit;
+      if(order){
+       Object.keys(bits).reverse().forEach(x => {
+          if(x >= order){
+              bits[parseInt(x) + 1] = bits[x];
+          }else{
+            bits[x] = bits[x];
+          }
+        })
+        bits[order] = bit;
+        console.log(bits);
+      }else{
+        bits[Object.keys(bits).length+1] = bit;
+      }
     }
     update(path, bits);
   })
 }
 
 export function update(path, data){
-  console.log("data base update",path, data);
+  // console.log("data base update",path, data);
   return db.ref(path).set(data);
 }
 
@@ -130,4 +174,16 @@ export function trash(uid,blockId){
 
 export function listen(path){
   return db.ref(path);
+}
+
+
+// Helper functions 
+// NOTE this function is used when reducing lists of blockIds in preperation for updates to firebase.
+export function reduceList (r, obj){
+  for(var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+          r[key] = obj[key];
+      }
+  }
+  return r;
 }

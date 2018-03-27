@@ -18,6 +18,7 @@ export default class Header extends React.Component {
       blockData:'',
       blockTitle:''
     };
+    console.log(this.props);
   }
   getCurrentBlock = (id) => {
     if(id){
@@ -50,13 +51,16 @@ export default class Header extends React.Component {
     }
     
   }
+  updateCompendium = (x) => {
+    this.props.updateCompendium(x);
+  }
   
   render() {
     return (
       <div style={{position:'relative'}}>
         {(this.state.parentBlockId?
-            <Link to={'/block/'+this.state.parentBlockId}>  <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200 }}>{this.state.blockTitle}</h2> </Link>
-          : <Link to={'/'}>  <h2  style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200 }}>{this.state.blockTitle}</h2> </Link>
+            <Link to={'/block/'+this.state.parentBlockId}>  <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockTitle}</h2> </Link>
+          : <Link to={'/'}>  <h2  style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200,  textAlign:'center' }}>{this.state.blockTitle}</h2> </Link>
         )}
         
         {/* <h1 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200 }}>{this.state.blockTitle}</h1> */}

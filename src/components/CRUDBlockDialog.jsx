@@ -91,7 +91,10 @@ export default class CRUDBlockDialog extends Component {
         if(this.props.pinIt) 
             pinBlock(this.state.uid , x);
         if(this.state.blockData.parentBlockId)
-            updateChildren(this.state.blockData.parentBlockId, x)
+            updateChildren(this.state.blockData.parentBlockId, x);
+            
+        // TODO fix this so that update children only happens if not being updated.
+        
 
         
         this.setState({dialogOpen: false}) 
@@ -165,7 +168,7 @@ export default class CRUDBlockDialog extends Component {
               <MenuItem id="viewers" value={3} primaryText="Private" />
             </DropDownMenu>
             
-            {(this.state.blockData.viewers == 2)? <MultiSelect name="viewersList" handleData={this.handleMultiSelect} /> : null}
+            {(this.state.blockData.viewers === 2)? <MultiSelect name="viewersList" handleData={this.handleMultiSelect} /> : null}
             <br />
           <FontAwesome
              name='pencil'
@@ -178,7 +181,7 @@ export default class CRUDBlockDialog extends Component {
              <MenuItem id="editors" value={3} primaryText="Private" />
            </DropDownMenu>
            
-           {(this.state.blockData.editors == 2)? <MultiSelect name="editorsList" handleData={this.handleMultiSelect} /> : null}
+           {(this.state.blockData.editors === 2)? <MultiSelect name="editorsList" handleData={this.handleMultiSelect} /> : null}
         
         </Dialog>
     );

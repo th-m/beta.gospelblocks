@@ -1,22 +1,15 @@
 import React, { Component } from 'react';
 import PinnedBlock from './PinnedBlock';
 import CreateBlock from './CreateBlock';
-import { listen } from '../helpers/database'
+import { listen, update, reduceList } from '../helpers/database'
 import '../styles/App.css';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 
 
-// class SortableComponent extends Component {
-// 
-//   render() {
-//     return <SortableList items={this.state.items} onSortEnd={this.onSortEnd} />;
-//   }
-// }
-
 const SortableItem = SortableElement(({value}) => {
   return (
     <li>
-      <PinnedBlock key={value.pin} blockId={value.pin} uid={value.uid}/>
+      <PinnedBlock key={value.key} blockId={value.blockId} uid={value.uid}/>
     </li>
   );
 });
@@ -25,11 +18,12 @@ const SortableList = SortableContainer(({items}) => {
   return (
     <ul>
       {items.map((value, index) => (
-        <SortableItem key={`item-${index}`} index={index} value={value} />
+        <SortableItem key={`pin-${index}`} index={index} value={value} />
       ))}
     </ul>
   );
 });
+
 
 export default class Dashboard extends Component {
   constructor(props){
@@ -56,13 +50,14 @@ export default class Dashboard extends Component {
   }
 
   formatDraggableList = (pins) => {
-    let list = pins.map(pin => {return { pin:pin, uid:this.props.user.uid, value:pin, index: pin} });
+    let list = pins.map(pin => {return { key:pin.key, blockId:pin.blockId, uid:this.props.user.uid} });
     this.setState({list});
   }
   
   gotData = (data) => {
+    // console.log(data.val());
     if(data.val() && data.val().pinnedBlocks){
-      let pinnedBlocks = Object.keys(data.val().pinnedBlocks).map(key => key); 
+      let pinnedBlocks = Object.keys(data.val().pinnedBlocks).map(key => {return {key:key, blockId:data.val().pinnedBlocks[key]}}); 
       this.setState({pinnedBlocks:pinnedBlocks});
       this.formatDraggableList(pinnedBlocks);
     }else{
@@ -70,11 +65,17 @@ export default class Dashboard extends Component {
     };
   }
   
-
+  
+  
   onSortEnd = ({oldIndex, newIndex}) => {
     this.setState({
       list: arrayMove(this.state.list, oldIndex, newIndex),
     });
+    
+    const newPinOrder = Object.keys(this.state.list).map(key => {return {[(parseInt(key) + 1)] : this.state.list[key].blockId}}).reduce(reduceList, {});
+    const path = 'users/'+ this.props.user.uid +'/pinnedBlocks';
+    update(path,newPinOrder);
+    
   };
   
   render() {

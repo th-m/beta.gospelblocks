@@ -146,9 +146,10 @@ body > ul , body > li{
 }
 
 .drop_zone.ready{
-  height: 7px;
+  height: 15px;
   background-color: rgba(0, 188, 212, .36);
   box-shadow: 0px 0px 18px rgb(0, 188, 212);
+  z-index: 9999999999999999;
 }
 
 .study_container > div{
@@ -165,4 +166,10 @@ body > ul , body > li{
   position:absolute;
   right:30px;
   bottom:0px;
+}
+
+.compendiumWindow > ul{
+  padding:0;
+  list-style-type: none;
+  margin:0;
 }

@@ -24,7 +24,7 @@ export function getChapters(v,b){
   });
 }
 export function getVerses(v,b,c){
-  console.log(baseURL+'volume/'+v+'/book/'+b+'/chapter/'+c);
+  // console.log(baseURL+'volume/'+v+'/book/'+b+'/chapter/'+c);
  return fetch(baseURL+'volume/'+v+'/book/'+b+'/chapter/'+c).then(function(response) {
     return response.json();
   }).then(function(obj) {

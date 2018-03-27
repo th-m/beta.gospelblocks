@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { listen } from '../helpers/database';
+import { listen, update, reduceList } from '../helpers/database';
 
 import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
@@ -10,16 +10,17 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 const SortableItem = SortableElement(({value}) => {
   return (
     <li>
-      <BlockNavItem key={value.id} blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} />
+      <BlockNavItem blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} />
     </li>
   );
 });
 
 const SortableList = SortableContainer(({items}) => {
+  
   return (
     <ul>
       {items.map((value, index) => (
-        <SortableItem key={`item-${index}`} index={index} value={value} />
+        <SortableItem key={`blocknav-${index}`} index={index} value={value} />
       ))}
     </ul>
   );
@@ -27,7 +28,7 @@ const SortableList = SortableContainer(({items}) => {
 
 export default class Block extends Component {
   constructor(props){
-    console.log('history',props.history)
+    // console.log('history',props.history)
     super(props);
     this.state = {
       editDialogOpen: false,
@@ -43,6 +44,7 @@ export default class Block extends Component {
     const path = 'blocks/'+ this.state.id;
     listen(path).on("value", this.gotData, this.errData);
   }
+  
   
   componentWillReceiveProps(nextProps){
     //TODO ParentBlockId needs to relate to a parent not previous.
@@ -64,9 +66,10 @@ export default class Block extends Component {
   gotData = (data) => {
     const blockData = data.val();
     this.setState({ blockData: blockData });
-    console.log(blockData);
-    if(blockData.children){
-      this.setState({ children: blockData.children.map(x => { return {id:x, redirect:this.redirect,  updateCompendium:this.updateCompendium} } ) } );
+    const children = data.val().children;
+    // console.log(children);
+    if(children){
+      this.setState({ children: Object.keys(children).map(x => { return {key:x, id:children[x], redirect:this.redirect,  updateCompendium:this.updateCompendium} } ) } );
     }else{
       this.setState({ children: [] } );
     }
@@ -85,17 +88,23 @@ export default class Block extends Component {
     this.setState({
       children: arrayMove(this.state.children, oldIndex, newIndex),
     });
+    
+    
+    const newPinOrder = Object.keys(this.state.children).map(key => {return {[(parseInt(key) + 1)] : this.state.children[key].id}}).reduce(reduceList, {});
+    const path = 'blocks/'+ this.state.id +'/children';
+    update(path,newPinOrder);
+    
   };
   
   render(){
     return (
       <div>
         <div className="nav_items">
-          <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd}  />
+          <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} />
           <CreateBlock parentBlockId={this.state.id} />
         </div>
         <div className="study_container">
-          <Library />
+          <Library  blockId={this.state.compendiumId} />
           <Compendium blockId={this.state.compendiumId}/>
         </div>
       </div>

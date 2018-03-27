@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 // import {Breadcrumbs} from 'material-ui-breadcrumbs/Breadcrumbs';
 import Paper from 'material-ui/Paper';
 import { getVolumes, getBooks, getChapters, getVerses } from '../helpers/scriptureAPI';
-import Draggable from 'react-draggable'; 
+import { listen, addBit, update, reduceList } from '../helpers/database';
+// import Draggable from 'react-draggable'; 
 // import { DragSource } from 'react-dnd';
 import LibraryBreadCrumbs from './LibraryBreadCrumbs';
 
@@ -16,7 +17,9 @@ const style = {
 export default class Library extends Component {
   constructor(props){
     super(props);
+    console.log(props);
     this.state = {
+      id: this.props.blockId,
       selectedTab: 0,
       tabs:[{key:0, depth:0, title: 'Volumes'}],
       depth: 0,
@@ -33,7 +36,13 @@ export default class Library extends Component {
       getVolumes().then( x => this.setState({shelf:x, preface:'volume_'}));
     }
   }
-
+  
+  componentWillReceiveProps(nextProps){
+    // const path = 'blocks/'+ nextProps.blockId;
+    // listen(path).on("value", this.gotData, this.errData);
+    this.setState({id:nextProps.blockId});
+  }
+  
   queryChapters = (i) => {
     this.setState({book:i});
     getChapters(this.state.volume, i).then( x => this.setState({shelf:x, preface:'chapter_'}));
@@ -42,6 +51,18 @@ export default class Library extends Component {
   queryVerses = (i) => {
     this.setState({chapter:i});
     getVerses(this.state.volume, this.state.book, i).then( x => this.setState({shelf:x, preface:'verse_'}));
+  }
+  
+  createDropZone = (x) => {
+    let d = document.createElement("div");
+    d.classList.add("drop_zone");
+    d.addEventListener("drop", this.handleOnDrop);
+    d.addEventListener("dragover", this.handleDragOver);
+    d.innerHTML = '&nbsp;';
+    d.setAttribute('data-order', (x+1));
+    
+    return d;
+    // x.parentNode.insertBefore(d, x.nextSibling);
   }
   
   handleStart = (e) => {
@@ -53,10 +74,42 @@ export default class Library extends Component {
       bookId : this.state.book,
       chapterId : this.state.chapter
     }
-    document.querySelectorAll('.drop_zone').forEach(x => x.className+=" ready");
+    // Array.from(document.querySelectorAll('.bit')).forEach(x => console.log(x));
+    let bits = document.querySelectorAll('.bit');
+    bits.forEach((x, i) => {
+      let d = this.createDropZone(i);
+      x.parentNode.insertBefore(d, x);
+    });
+    // console.log(bits.length);
+    if(bits.length > 0){
+      let d = this.createDropZone(bits.length);
+      bits[bits.length-1].parentNode.insertBefore(d, bits[bits.length-1].nextSibling);
+    }
+    
+    setTimeout( () => {
+      document.querySelectorAll('.drop_zone').forEach(x => x.className+=" ready");
+    }, 50);
     e.dataTransfer.setData("verseData",  JSON.stringify(verseData));
   }
   
+  handleOnDrop = (e) => {
+    let data = JSON.parse(e.dataTransfer.getData("verseData"));
+    // console.log(data);
+    // console.log(e.target.dataset.order);
+    e.target.removeAttribute("style");
+    
+    addBit(this.state.id, data, e.target.dataset.order)
+    .then( x => { 
+      // console.log(x);
+      if(x && x.bits){
+        this.setState({bits:x.bits}) 
+      }
+    });
+  }
+  
+  handleDragOver = (e) => {
+    e.preventDefault();
+  }
   // This works with the drop event in the compoendium component
   handleDrag = (e) => {
     e.dataTransfer.setData("t",  JSON.stringify({test:'data'}));
@@ -64,8 +117,13 @@ export default class Library extends Component {
   
   handleStop = (e) => {
     e.preventDefault();
-    console.log(e);
-    document.querySelectorAll('.drop_zone').forEach(x => x.classList.remove("ready"));
+    document.querySelectorAll('.drop_zone').forEach(x => {
+      x.classList.remove("ready"); 
+      setTimeout( () => {
+        x.remove();
+      }, 250);
+    });
+    // document.querySelectorAll('.bit')
     // .classList.remove("mystyle");
     // console.log('handleStop', e);
   }
@@ -76,7 +134,7 @@ export default class Library extends Component {
     let tabs = this.state.tabs;
     switch (e.target.dataset.depth) {
       case '0':
-        console.log('get books');
+        // console.log('get books');
         this.setState({volume:e.target.dataset.key});
         getBooks(e.target.dataset.key).then( x => this.setState({shelf:x, preface:'book_'}));
         this.setState({depth:1});
@@ -84,7 +142,7 @@ export default class Library extends Component {
         this.setState({tabs:tabs});
         break;
       case '1':
-        console.log('get chapters');
+        // console.log('get chapters');
         this.setState({book:e.target.dataset.key});
         getChapters(this.state.volume, e.target.dataset.key).then( x => this.setState({shelf:x, preface:'chapter_'}));
         this.setState({depth:2});
@@ -92,7 +150,7 @@ export default class Library extends Component {
         this.setState({tabs:tabs});
         break;
       case '2':
-        console.log('get verses');
+        // console.log('get verses');
         this.setState({chapter:e.target.dataset.key});
         getVerses(this.state.volume, this.state.book, e.target.dataset.key).then( x => this.setState({shelf:x, preface:'verse_'}));
         this.setState({depth:3});
