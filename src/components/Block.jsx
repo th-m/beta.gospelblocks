@@ -5,12 +5,16 @@ import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
 import Library from './Library';
 import Compendium from './Compendium';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
+import {Context, DataStore} from '../Context'
+
+const DragHandle = SortableHandle(() => <span>::</span>);
 
 const SortableItem = SortableElement(({value}) => {
   return (
     <li>
-      <BlockNavItem blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} />
+      <DragHandle />
+      <BlockNavItem blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} uid={value.uid}/>
     </li>
   );
 });
@@ -37,12 +41,14 @@ export default class Block extends Component {
       id: this.props.match.params.blockId,
       compendiumId: this.props.match.params.blockId,
     };
+    // console.log(props);
   }
   
   
   componentDidMount(){
     const path = 'blocks/'+ this.state.id;
     listen(path).on("value", this.gotData, this.errData);
+    // this.props.updateBlockId(this.state.id);
   }
   
   
@@ -53,6 +59,10 @@ export default class Block extends Component {
     this.setState({parentBlockId: this.state.id});
     listen(path).on("value", this.gotData, this.errData);
     this.setState({id:nextProps.match.params.blockId});
+    
+    if(nextProps.forceCompendium){
+      this.updateCompendium(nextProps.forceCompendium);
+    }
   }
   
   // componentWillUpdate(){
@@ -69,11 +79,11 @@ export default class Block extends Component {
     const children = data.val().children;
     // console.log(children);
     if(children){
-      this.setState({ children: Object.keys(children).map(x => { return {key:x, id:children[x], redirect:this.redirect,  updateCompendium:this.updateCompendium} } ) } );
+      this.setState({ children: Object.keys(children).map(x => { return {key:x, id:children[x], redirect:this.redirect,  updateCompendium:this.updateCompendium, uid:this.props.user.uid} } ) } );
     }else{
       this.setState({ children: [] } );
     }
-    this.props.getCurrentBlock(blockData.id);
+    // this.props.getCurrentBlock(blockData.id);
   }
   
   redirect = (p) => {
@@ -100,12 +110,12 @@ export default class Block extends Component {
     return (
       <div>
         <div className="nav_items">
-          <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} />
+          <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} useDragHandle={true}  />
           <CreateBlock parentBlockId={this.state.id} />
         </div>
         <div className="study_container">
           <Library  blockId={this.state.compendiumId} />
-          <Compendium blockId={this.state.compendiumId}/>
+          <Compendium blockId={this.state.compendiumId} uid={this.props.user.uid} />
         </div>
       </div>
     );

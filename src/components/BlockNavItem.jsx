@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { listen } from '../helpers/database';
 import CRUDBlockDialog from './CRUDBlockDialog';
 import FontAwesome  from 'react-fontawesome';
+import {Context, DataStore} from '../Context'
 // import {  Link } from 'react-router-dom';
 
 import { Card } from 'material-ui/Card';

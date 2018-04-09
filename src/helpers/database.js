@@ -67,19 +67,20 @@ export function getBlock({destructure_obj}){
 }
 
 export function createBlock(block){
-  // console.log(block);
+  console.log(block);
   // clean the object of any empty values
   clean(block);
   
-  // console.log(block);
   // if we have a id provided to the function we will use that 
   if(block.id){
+    console.log("we already have an id", block.id);
     let updates = {};
     block.created = Date().toLocaleString();
     updates['/blocks/' + block.id] = block;
     return ref.update(updates).then(x =>  block.id);
   }else{
     return getNewId().then(id => {
+      console.log("the fired get new id", id);
       let updates = {};
       block.created = Date().toLocaleString();
       block.id = id;
@@ -153,23 +154,38 @@ export function update(path, data){
   return db.ref(path).set(data);
 }
 
-export function trashPin(uid, blockId){
-    const path = 'users/'+ uid +'/pinnedBlocks/' + blockId;
-    // console.log("remove base update",path, data);
-    db.ref(path).remove().then(function(){
-      trash(uid,blockId);
-    });
-}
 
 export function trash(uid,blockId){
-  
-  const path = `blocks/${blockId}`;
-  const trashPath = `trash/${uid}/blocks/${blockId}`;
-  db.ref(path).once('value').then(function(data){
-    db.ref(trashPath).set(data.val());
-    db.ref(path).remove();
+
+  db.ref(`blocks/${blockId}`).once('value').then(function(data) {
+    
+    // NOTE check if pinned block;
+    db.ref(`users/${uid}/pinnedBlocks`).once('value').then(function(data) {
+        if(data.val()){
+          let k = Object.entries(data.val()).filter(x => {return x[1] == blockId} );
+          if(k[0] && k[0][0]){
+            db.ref(`users/${uid}/pinnedBlocks/${k[0][0]}`).remove();
+          }
+        }
+    })
+    
+    // NOTE check if has a parent;
+    let blockData = data.val();
+    if(blockData.parentBlockId){
+      db.ref(`blocks/${blockData.parentBlockId}/children`).once('value').then(function(data) {
+          if(data.val()){
+            let l = Object.entries(data.val()).filter(x => {return x[1] != blockId} ).map(x => x[1]);
+            update(`blocks/${blockData.parentBlockId}/children`, l);
+          }
+      })
+    }
+    
+    db.ref(`blocks/${blockId}`).once('value').then(function(data){
+      db.ref(`trash/${uid}/blocks/${blockId}`).set(data.val());
+      db.ref(`blocks/${blockId}`).remove();
+    })
   })
-  // db.ref(path).set(data);
+  
 }
 
 export function listen(path){

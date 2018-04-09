@@ -1,39 +1,42 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import AppBar from 'material-ui/AppBar';
 import Login from './Login';
 import MainMenu from './MainMenu';
 import {  Link } from 'react-router-dom';
 import { listen } from '../helpers/database';
-  
-
+import {Context, DataStore} from '../Context'
 
 export default class Header extends React.Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
       authed: false,
       loading: false,
       user: '',
-      id:'',
       blockData:'',
-      blockTitle:''
+      link:'/'
     };
-    console.log(this.props);
+    console.log(props);
   }
+  
+  componentWillReceiveProps(nextProps){
+    this.getCurrentBlock(nextProps.match.params.blockId);
+  }
+  
+  componentDidMount(){
+      this.getCurrentBlock(this.props.match.params.blockId);
+    // check permissions and render or push somewhere elese
+  }
+  
   getCurrentBlock = (id) => {
+    
     if(id){
-      // console.log("getCurrentBlock", id);
-      this.setState({id:id});
       const path = 'blocks/'+id;
       listen(path).on("value", this.gotData, this.errData);
     }else{
-      this.setState({blockTitle:''});
+      this.setState({blockData:''});
     }
-  }
-
-  hideBarTitle = () => {
-    // let blockData = this.state.blockData;
-    this.setState({ blockTitle: '' });
+    
   }
   
   errData = (error) => {
@@ -43,35 +46,54 @@ export default class Header extends React.Component {
   gotData = (data) => {
     const blockData = data.val();
     this.setState({ blockData: blockData });
-    this.setState({ blockTitle: blockData.title });
-    if(blockData.parentBlockId){
-      this.setState({ parentBlockId: (blockData.parentBlockId )});
-    }else{
-      this.setState({ parentBlockId: false});
-    }
     
+    if(blockData && blockData.parentBlockId){
+      this.setState({link:'/block/'+blockData.parentBlockId});
+    }else{
+      this.setState({link:'/'});
+    }
   }
-  updateCompendium = (x) => {
-    this.props.updateCompendium(x);
+    
+  redirect = () => {
+    this.props.history.push(this.state.link);
+  }
+  
+  updateCompendium = () => {
+     this.props.updateCompendium(this.state.blockData.id);
   }
   
   render() {
     return (
-      <div style={{position:'relative'}}>
-        {(this.state.parentBlockId?
-            <Link to={'/block/'+this.state.parentBlockId}>  <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockTitle}</h2> </Link>
-          : <Link to={'/'}>  <h2  style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200,  textAlign:'center' }}>{this.state.blockTitle}</h2> </Link>
-        )}
+      <Context>
+        <DataStore.Consumer>
+          {context => (
+            <Fragment>
+              <div style={{position:'relative'}}>
+                  <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
+                     <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
+                  </div>
+                <AppBar
+                    style={{textAlign: 'left'}}
+                    // TODO: make BrandIcon component
+                    title={ <Link to='/'> <span style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
+                    iconElementRight={(this.props.authed? <MainMenu /> : <Login />)}
+                    showMenuIconButton={false}
+                  />
+                </div>
+              </Fragment>
+            )}
+          </DataStore.Consumer>  
+        </Context>
         
-        {/* <h1 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200 }}>{this.state.blockTitle}</h1> */}
-        <AppBar
-            style={{textAlign: 'left'}}
-            // TODO: make BrandIcon component
-            title={ <Link to='/'> <span style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
-            iconElementRight={(this.props.authed? <MainMenu /> : <Login />)}
-            showMenuIconButton={false}
-          />
-        </div>
     );
   }
+  
 }
+
+// {(this.state.blockData.parentBlockId?
+//   <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
+//     {/* <Link to={'/block/'+this.state.blockData.parentBlockId}>  <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> </Link> */}
+//      <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
+//    </div>
+//   : <Link to={'/'}>  <h2  style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200,  textAlign:'center' }}>{this.state.blockData.title}</h2> </Link>
+// )}

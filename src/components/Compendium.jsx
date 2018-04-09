@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Paper from 'material-ui/Paper';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import { listen, addBit, update, reduceList, validateYouTubeUrl } from '../helpers/database';
@@ -9,7 +9,9 @@ import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import Markdown from 'react-remarkable';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+
+import Bit from './Bit'
+import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
 
 const style = {
   height: '74vh',
@@ -18,28 +20,29 @@ const style = {
   display: 'inline-block',
 };
 
+const DragHandle = SortableHandle(() => <span>::</span>);
+
 const SortableItem = SortableElement(({value}) => {
-  
+  // console.log(value);
   let content = "";
   switch (value.type) {
     case "verse":
-      content = <span><h3>{value.title}</h3><p>{value.text}</p></span>;
+      content = <Fragment> <DragHandle /><h3>{value.title}</h3><p>{value.text}</p></Fragment>;
       break;
     case "note":
-      content = <Markdown>{value.text}</Markdown>
+      content = <Fragment> <DragHandle /> <Bit keyIndex={value.key} {...value} /></Fragment>
       break;
     default:
   }
+  
   return (
     <div className="bit" data-key={value.key}>
       <Paper>
         {content}
       </Paper>
-      {/* <div className="drop_zone" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={(value.key+1)}>
-        &nbsp;
-      </div> */}
     </div>
   );
+  
 });
 
 const SortableList = SortableContainer(({items}) => {
@@ -56,6 +59,7 @@ const SortableList = SortableContainer(({items}) => {
       ))}
     </div>
   );
+  
 });
 
 export default class Compendium extends Component {
@@ -69,6 +73,7 @@ export default class Compendium extends Component {
       notePreview: false,
       note: '',
     };
+    // console.log(props);
   }
   
   componentDidMount(){
@@ -77,6 +82,7 @@ export default class Compendium extends Component {
   }
   
   componentWillReceiveProps(nextProps){
+    // console.log("compendium" ,nextProps);
     const path = 'blocks/'+ nextProps.blockId;
     listen(path).on("value", this.gotData, this.errData);
     this.setState({id:nextProps.blockId});
@@ -88,11 +94,20 @@ export default class Compendium extends Component {
   
   gotData = (data) => {
     const blockData = data.val();
-    // console.log(blockData);
+    
+    if(!blockData)
+      return false;
     
     this.setState({title: blockData.title});
     
+      
     if(blockData.bits){
+      let bits = blockData.bits.map(x => {
+        x.uid = this.props.uid
+        x.blockId = this.props.blockId
+        return x;
+      });
+      // console.log(bits);
       this.setState({bits:blockData.bits});
     }else{
       this.setState({bits:[]});
@@ -105,7 +120,6 @@ export default class Compendium extends Component {
     
     addBit(this.state.id, data)
     .then( x => { 
-      // console.log(x);
       if(x && x.bits){
         this.setState({bits:x.bits}) 
       }
@@ -130,9 +144,6 @@ export default class Compendium extends Component {
   }
   
   handleTextChange =  (e) => {
-    console.log(e.target.value);
-      // let blockData = this.state.blockData;
-      // blockData[e.target.id] = e.target.value;
       this.setState({[e.target.id]: e.target.value});
   }
   
@@ -145,12 +156,8 @@ export default class Compendium extends Component {
       bits: arrayMove(this.state.bits, oldIndex, newIndex),
     });
     
-    console.log("this data",this.state.bits);
-    
-    const newPinOrder = Object.keys(this.state.bits).map(key => {return {[(parseInt(key) + 1)] : this.state.bits[key].id}}).reduce(reduceList, {});
-    console.log(newPinOrder);
     const path = 'blocks/'+ this.state.id +'/bits';
-    // update(path,newPinOrder);
+    update(path,this.state.bits);
     
   };
   
@@ -169,7 +176,7 @@ export default class Compendium extends Component {
                :null
              )
            }
-             <SortableList items={this.state.bits} axis="y" onSortEnd={this.onSortEnd}  /> 
+             <SortableList items={this.state.bits} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
           
         </div> 
         <Toolbar>

@@ -10,7 +10,7 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MultiSelect from './MultiSelect'
 
-import { createBlock, pinBlock, update, updateChildren, generateLongId, trashPin } from '../helpers/database'
+import { createBlock, pinBlock, update, updateChildren, generateLongId, trash } from '../helpers/database'
 import '../styles/App.css';
 
 const defaultBlock = {
@@ -85,18 +85,16 @@ export default class CRUDBlockDialog extends Component {
     let blockData = this.state.blockData;
     if(this.props.parentBlockId)
       blockData.parentBlockId = this.props.parentBlockId;
+    
+
     createBlock(blockData)
     .then( x => {
-        console.log("block created", this.state, this.props);
+        console.log("block created", this.state, this.props, "and x is " + x);
         if(this.props.pinIt) 
             pinBlock(this.state.uid , x);
         if(this.state.blockData.parentBlockId)
             updateChildren(this.state.blockData.parentBlockId, x);
             
-        // TODO fix this so that update children only happens if not being updated.
-        
-
-        
         this.setState({dialogOpen: false}) 
       } 
     );    
@@ -110,7 +108,7 @@ export default class CRUDBlockDialog extends Component {
   trashBlock = () => {
     if(this.props.isPinned){
       console.log("this got clicked")
-      trashPin(this.props.uid, this.state.blockData.id);
+      trash(this.props.uid, this.state.blockData.id);
     }else{
       console.log("only allowed to delete pinned blocks");
     }
