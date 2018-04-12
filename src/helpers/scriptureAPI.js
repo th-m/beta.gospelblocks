@@ -5,7 +5,7 @@ export function getVolumes(){
  return fetch(baseURL+'volumes').then(function(response) {
     return response.json();
   }).then(function(obj) {
-    return obj.volumes.filter(x => x.id <= 5);
+    return obj.volumes.filter(x => x.id <= 10);
   });
 }
 export function getBooks(v){
@@ -19,7 +19,6 @@ export function getChapters(v,b){
  return fetch(baseURL+'volume/'+v+'/book/'+b).then(function(response) {
     return response.json();
   }).then(function(obj) {
-    // console.log(obj);
     return obj.chapters;
   });
 }
@@ -28,7 +27,29 @@ export function getVerses(v,b,c){
  return fetch(baseURL+'volume/'+v+'/book/'+b+'/chapter/'+c).then(function(response) {
     return response.json();
   }).then(function(obj) {
-    console.log(obj)
     return obj.verses;
   });
+}
+export function scriptureSearch(s, p = 1,v = null ,b = null ,c = null){
+  // http://api.gospelblocks.com/v1/search/dragon||wine
+  let url = baseURL+'search/'+s;
+  
+  if(v){
+    url += "/"+p;
+  }
+  if(b){
+    url += "/"+b;
+  }
+  if(c){
+    url += "/"+c;
+  }
+  if(p){
+    url += "/"+p;
+  }
+  
+  return fetch(url).then(function(response) {
+     return response.json();
+   }).then(function(obj) {
+     return obj.verses;
+   });
 }

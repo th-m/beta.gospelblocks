@@ -16,7 +16,7 @@ export default class Header extends React.Component {
       blockData:'',
       link:'/'
     };
-    console.log(props);
+    // console.log(props);
   }
   
   componentWillReceiveProps(nextProps){

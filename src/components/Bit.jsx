@@ -11,7 +11,7 @@ export default class extends Component {
       editMode: false,
       text: this.props.text,
     };
-    console.log(props);
+    // console.log(props);
   }
   
   handleButtonPress = () => {

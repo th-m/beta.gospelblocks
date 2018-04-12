@@ -54,7 +54,7 @@ export default class Block extends Component {
   
   componentWillReceiveProps(nextProps){
     //TODO ParentBlockId needs to relate to a parent not previous.
-    console.log('this never fired', nextProps);
+    // console.log('this never fired', nextProps);
     const path = 'blocks/'+ nextProps.match.params.blockId;
     this.setState({parentBlockId: this.state.id});
     listen(path).on("value", this.gotData, this.errData);
