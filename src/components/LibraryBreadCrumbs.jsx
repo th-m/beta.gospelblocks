@@ -13,6 +13,12 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 //   },
 // };
 
+const tabStyle = {
+  whiteSpace: "nowrap", 
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+}
+
 export default class LibraryBreadCrumbs extends Component {
   constructor(props){
     super(props);
@@ -50,7 +56,7 @@ export default class LibraryBreadCrumbs extends Component {
   render() {
     return (
       <Tabs initialSelectedIndex={this.state.selectedTab}>
-          {this.state.tabs.map( x => <Tab ref={(c) => this['tab_'+x.depth] = c} key={x.depth} data-route={{depth:x.depth,key:x.key, title:x.title}} label={x.title} onActive={this.handleActive}  />)}
+          {this.state.tabs.map( x => <Tab ref={(c) => this['tab_'+x.depth] = c} style={tabStyle} key={x.depth} data-route={{depth:x.depth,key:x.key, title:x.title}} label={x.title} onActive={this.handleActive}  />)}
       </Tabs>
     );
   }

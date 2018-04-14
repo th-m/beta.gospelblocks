@@ -35,11 +35,10 @@ export default class MainMenu extends React.Component {
          onRequestChange={(open) => this.setState({open})}
          openSecondary={true}
        >  
+           <Link to='/'> <MenuItem > Dashboard </MenuItem> </Link>
            <Link to='/profile'> <MenuItem> Profile </MenuItem> </Link>
            <Link to='/contact'> <MenuItem> Contact </MenuItem> </Link>
            <Link to='/about'> <MenuItem > About </MenuItem> </Link>
-           <Link to='/'> <MenuItem > Dashboard </MenuItem> </Link>
-           {/* <Link to='/'> <MenuItem > Home </MenuItem> </Link> */}
            <MenuItem onClick={this.signOut}> Sign Out </MenuItem>
       
        </Drawer>

@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import Paper from 'material-ui/Paper';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import { listen, addBit, update, reduceList, validateYouTubeUrl } from '../helpers/database';
+import { listen, addBit, update } from '../helpers/database';
+// import { listen, addBit, update, reduceList, validateYouTubeUrl } from '../helpers/database';
 // import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import FontAwesome  from 'react-fontawesome';
@@ -13,31 +14,31 @@ import Markdown from 'react-remarkable';
 import Bit from './Bit'
 import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
 
-const style = {
-  height: '74vh',
-  width: '100%',
-  textAlign: 'center',
-  display: 'inline-block',
-};
+// const style = {
+//   height: '74vh',
+//   width: '100%',
+//   textAlign: 'center',
+//   display: 'inline-block',
+// };
 
-const DragHandle = SortableHandle(() => <span>::</span>);
+const DragHandle = SortableHandle(() =>  <span className="drag_handle">::</span>);
 
 const SortableItem = SortableElement(({value}) => {
   // console.log(value);
   let content = "";
   switch (value.type) {
     case "verse":
-      content = <Fragment> <DragHandle /><h3>{value.title}</h3><p>{value.text}</p></Fragment>;
+      content = <div> <i>{value.title}</i><p>{value.text}</p> <DragHandle /></div>;
       break;
     case "note":
-      content = <Fragment> <DragHandle /> <Bit keyIndex={value.key} {...value} /></Fragment>
+      content = <Fragment> <Bit keyIndex={value.key} {...value} /> <DragHandle /></Fragment>
       break;
     default:
   }
   
   return (
-    <div className="bit" data-key={value.key}>
-      <Paper>
+    <div className="Bit" data-key={value.key}>
+      <Paper >
         {content}
       </Paper>
     </div>
@@ -102,11 +103,13 @@ export default class Compendium extends Component {
     
       
     if(blockData.bits){
-      let bits = blockData.bits.map(x => {
-        x.uid = this.props.uid
-        x.blockId = this.props.blockId
-        return x;
-      });
+      console.log('blockData.bits', blockData.bits);
+      // NOTE WTF am I doing here
+      // let bits = blockData.bits.map(x => {
+      //   x.uid = this.props.uid
+      //   x.blockId = this.props.blockId
+      //   return x;
+      // });
       // console.log(bits);
       this.setState({bits:blockData.bits});
     }else{
@@ -163,67 +166,73 @@ export default class Compendium extends Component {
   
   render() {
     return (
-       <Paper style={style} zDepth={1} rounded={false}>
-         <Tabs>
-             <Tab  label={this.state.title}  />)
-         </Tabs>
-         <div className="compendiumWindow">
-           {
-             (this.state.bits.length < 1 ?
-               <div className="drop_zone" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order="0">
-                 &nbsp;
-               </div>
-               :null
-             )
-           }
-             <SortableList items={this.state.bits} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
-          
-        </div> 
-        <Toolbar>
-           <ToolbarGroup>
-             <FontAwesome
-                name='edit'
-                size='2x'
-                onClick={this.toggleDialog}
-              />
-              <Dialog
-                actions={[<FlatButton label='save' primary={true} onClick={this.saveNote} fullWidth={true} />]}
-                modal={false}
-                open={this.state.dialogOpen}
-                onRequestClose={this.toggleDialog}
-              >
-                {(this.state.notePreview 
-                  ?<FontAwesome
-                    name='eye-slash'
-                    size='2x'
-                    onClick={this.togglePreview}
-                  />
-                  :<FontAwesome
-                    name='eye'
-                    size='2x'
-                    onClick={this.togglePreview}
-                  />
-                )}
-                
-                {(!this.state.notePreview 
-                  ?<TextField
-                  id="note"
-                  onChange={this.handleTextChange}
-                  hintText="Write something profound"
-                  floatingLabelText="New Note"
-                  value={this.state.note}
-                  multiLine={true}
-                  fullWidth={true}
+       <Paper  zDepth={1}>
+         <div className="Compendium">
+           <div>
+             <Tabs>
+                 <Tab  label={this.state.title}  />)
+             </Tabs>
+           </div>
+           <div className="compendiumWindow" >
+             {
+               (this.state.bits.length < 1 ?
+                 <div className="drop_zone" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order="0">
+                   &nbsp;
+                 </div>
+                 :null
+               )
+             }
+               <SortableList items={this.state.bits} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
+            
+          </div> 
+          <div>
+            <Toolbar>
+              <ToolbarGroup>
+                <FontAwesome
+                  name='edit'
+                  size='2x'
+                  onClick={this.toggleDialog}
                 />
-              
-                :<Markdown>
-                  {this.state.note}
-                 </Markdown>
-                )}
-              
-              </Dialog>
-           </ToolbarGroup>
-        </Toolbar>
+                <Dialog
+                  actions={[<FlatButton label='save' primary={true} onClick={this.saveNote} fullWidth={true} />]}
+                  modal={false}
+                  open={this.state.dialogOpen}
+                  onRequestClose={this.toggleDialog}
+                  >
+                    {(this.state.notePreview 
+                      ?<FontAwesome
+                        name='eye-slash'
+                        size='2x'
+                        onClick={this.togglePreview}
+                      />
+                      :<FontAwesome
+                        name='eye'
+                        size='2x'
+                        onClick={this.togglePreview}
+                      />
+                    )}
+                    
+                    {(!this.state.notePreview 
+                      ?<TextField
+                        id="note"
+                        onChange={this.handleTextChange}
+                        hintText="Write something profound"
+                        floatingLabelText="New Note"
+                        value={this.state.note}
+                        multiLine={true}
+                        fullWidth={true}
+                      />
+                      
+                      :<Markdown>
+                        {this.state.note}
+                      </Markdown>
+                    )}
+                    
+                  </Dialog>
+                </ToolbarGroup>
+              </Toolbar>
+            </div> 
+          </div>
        </Paper>
     );
   }

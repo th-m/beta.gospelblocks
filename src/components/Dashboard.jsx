@@ -1,17 +1,16 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PinnedBlock from './PinnedBlock';
 import CreateBlock from './CreateBlock';
 import { listen, update, reduceList } from '../helpers/database'
 import '../styles/App.css';
-import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 
-const DragHandle = SortableHandle(() => <span>::</span>);
+// const DragHandle = SortableHandle(() => <span>::</span>);
 
 const SortableItem = SortableElement(({value}) => {
   console.log(value);
   return (
     <li>
-      <DragHandle />
       <PinnedBlock key={value.key} blockId={value.blockId} uid={value.uid}/>
     </li>
   );
@@ -77,7 +76,7 @@ export default class Dashboard extends Component {
       list: arrayMove(this.state.list, oldIndex, newIndex),
     });
     
-    const newPinOrder = Object.keys(this.state.list).map(key => {return {[(parseInt(key) + 1)] : this.state.list[key].blockId}}).reduce(reduceList, {});
+    const newPinOrder = Object.keys(this.state.list).map(key => {return {[(parseInt(key, 10) + 1)] : this.state.list[key].blockId}}).reduce(reduceList, {});
     const path = 'users/'+ this.props.user.uid +'/pinnedBlocks';
     update(path,newPinOrder);
     

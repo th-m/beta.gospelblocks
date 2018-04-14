@@ -2,14 +2,17 @@ import React, { Component } from 'react';
 import { listen } from '../helpers/database';
 import CRUDBlockDialog from './CRUDBlockDialog';
 import FontAwesome  from 'react-fontawesome';
-import {Context, DataStore} from '../Context'
+// import {Context, DataStore} from '../Context'
 // import {  Link } from 'react-router-dom';
 
 import { Card } from 'material-ui/Card';
 
+import { SortableHandle } from 'react-sortable-hoc';
+
+const DragHandle = SortableHandle(() => <span className="drag_handle" style={{position:"relative", right:10}}>::</span>);
+
 export default class Block extends Component {
   constructor(props){
-    // console.log(props);
     super(props);
     this.state = {
       editDialogOpen: false,
@@ -53,7 +56,9 @@ export default class Block extends Component {
     return (
       <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
         <Card className="pointer nav_item" >
-            <h3>{this.state.blockTitle}
+            <h3>
+              <DragHandle />
+              {this.state.blockTitle}
               <FontAwesome
                  name='ellipsis-v'
                  style={{float:'right', position:'relative', left:15, top:5}}

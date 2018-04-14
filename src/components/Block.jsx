@@ -5,15 +5,13 @@ import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
 import Library from './Library';
 import Compendium from './Compendium';
-import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
-import {Context, DataStore} from '../Context'
+import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+// import {Context, DataStore} from '../Context'
 
-const DragHandle = SortableHandle(() => <span>::</span>);
 
 const SortableItem = SortableElement(({value}) => {
   return (
     <li>
-      <DragHandle />
       <BlockNavItem blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} uid={value.uid}/>
     </li>
   );
@@ -40,6 +38,7 @@ export default class Block extends Component {
       children: [],
       id: this.props.match.params.blockId,
       compendiumId: this.props.match.params.blockId,
+      uid: ( this.props.user ? this.props.user.uid : false ),
     };
     // console.log(props);
   }
@@ -79,7 +78,7 @@ export default class Block extends Component {
     const children = data.val().children;
     // console.log(children);
     if(children){
-      this.setState({ children: Object.keys(children).map(x => { return {key:x, id:children[x], redirect:this.redirect,  updateCompendium:this.updateCompendium, uid:this.props.user.uid} } ) } );
+      this.setState({ children: Object.keys(children).map(x => { return {key:x, id:children[x], redirect:this.redirect,  updateCompendium:this.updateCompendium, uid:this.state.uid} } ) } );
     }else{
       this.setState({ children: [] } );
     }
@@ -100,7 +99,7 @@ export default class Block extends Component {
     });
     
     
-    const newPinOrder = Object.keys(this.state.children).map(key => {return {[(parseInt(key) + 1)] : this.state.children[key].id}}).reduce(reduceList, {});
+    const newPinOrder = Object.keys(this.state.children).map(key => {return {[(parseInt(key, 10) + 1)] : this.state.children[key].id}}).reduce(reduceList, {});
     const path = 'blocks/'+ this.state.id +'/children';
     update(path,newPinOrder);
     
@@ -115,7 +114,7 @@ export default class Block extends Component {
         </div>
         <div className="study_container">
           <Library  blockId={this.state.compendiumId} />
-          <Compendium blockId={this.state.compendiumId} uid={this.props.user.uid} />
+          <Compendium blockId={this.state.compendiumId} uid={this.state.uid} />
         </div>
       </div>
     );

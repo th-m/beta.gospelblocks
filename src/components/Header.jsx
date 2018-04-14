@@ -1,12 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
 import Login from './Login';
 import MainMenu from './MainMenu';
 import {  Link } from 'react-router-dom';
 import { listen } from '../helpers/database';
-import {Context, DataStore} from '../Context'
 
-export default class Header extends React.Component {
+export default class Header extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -16,7 +15,6 @@ export default class Header extends React.Component {
       blockData:'',
       link:'/'
     };
-    // console.log(props);
   }
   
   componentWillReceiveProps(nextProps){
@@ -64,36 +62,22 @@ export default class Header extends React.Component {
   
   render() {
     return (
-      <Context>
-        <DataStore.Consumer>
-          {context => (
-            <Fragment>
-              <div style={{position:'relative'}}>
-                  <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
-                     <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
-                  </div>
-                <AppBar
-                    style={{textAlign: 'left'}}
-                    // TODO: make BrandIcon component
-                    title={ <Link to='/'> <span style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
-                    iconElementRight={(this.props.authed? <MainMenu /> : <Login />)}
-                    showMenuIconButton={false}
-                  />
-                </div>
-              </Fragment>
-            )}
-          </DataStore.Consumer>  
-        </Context>
+  
+      <div style={{position:'relative'}}>
+        <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
+           <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
+        </div>
+        <AppBar
+          style={{textAlign: 'left'}}
+          // TODO: make BrandIcon component
+          title={ <Link to='/'> <span style={{cursor: 'pointer'}}>Gospel Blocks</span> </Link>}
+          iconElementRight={(this.props.authed? <MainMenu /> : <Login />)}
+          showMenuIconButton={false}
+        />
+      </div>
+          
         
     );
   }
   
 }
-
-// {(this.state.blockData.parentBlockId?
-//   <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
-//     {/* <Link to={'/block/'+this.state.blockData.parentBlockId}>  <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> </Link> */}
-//      <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
-//    </div>
-//   : <Link to={'/'}>  <h2  style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200,  textAlign:'center' }}>{this.state.blockData.title}</h2> </Link>
-// )}

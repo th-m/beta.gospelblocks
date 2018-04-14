@@ -2,67 +2,116 @@ import React from 'react';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import { login, userEmailProviders, auth } from '../helpers/auth'
+import { login, userEmailProviders, auth, checkUsername } from '../helpers/auth'
 
 
 
-function setErrorMsg(error) {
-  return {
-    loginMessage: error
-  }
-}
+// function setErrorMsg(error) {
+//   return {
+//     loginMessage: error
+//   }
+// }
+
 function validateEmail(email){
     var re = /\S+@\S+\.\S+/;
     return re.test(email);
 }
+
 export default class Login extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       authed: false,
       buttonMessage: 'Enter Your Email',
+      pwError: '',
+      emailError: '',
+      usernameError: '', 
       email: '',
       pw: '',
+      username: '',
       open: false
     };
+  }
+  
+  
+  handleKeyDown = (e) => {
+    if(e.key === "Enter"){
+      this.signIn();
+    }
   }
 
   handleEmailChange = (e) => {
       this.setState({email: e.target.value});
-      let buttonMessage = 'Enter Your Email';
       if(validateEmail(e.target.value)){
         
         userEmailProviders(e.target.value)
           .then((e) => {
-            console.log(e);
-             buttonMessage = (e.length > 0? 'Enter Password' : `Sign Up`); 
              if(e.length > 0){
                this.setState({authed:true});
              }else{
                this.setState({authed:false});
              }
-             this.setState({buttonMessage});
            })
           .catch(() => null);      
-      }else{
-        this.setState({buttonMessage});
       }
   }
-  handlePwChange = (e) => {
-    this.setState({pw: e.target.value});
+  inputChange = (e) => {
+    this.setState({[e.target.id]: e.target.value});
   }
-  signIn = (e) => {
-    e.preventDefault()
-    console.log('signin clicked', this.state.authed)
-    if(this.state.authed){
-      login(this.state.email, this.state.pw)
-      .catch((error) => {
-        this.setState(setErrorMsg('Invalid username/password.'))
-      })
+
+  handleErr = (msg) => {
+    if( msg.includes('assword')){
+      this.setState({pwError:msg});
+    }
+    if( msg.includes('email')){
+      this.setState({emailError:msg});
+    }
+  }
+  
+  handleLogin = () => {
+    login(this.state.email, this.state.pw)
+    .catch((error) => {
+      this.handleErr(error.message);
+    })
+  }
+  
+  
+  
+  checkSignUp = () => {
+    if(!this.state.username){
+      this.setState({usernameError:"you must choose a username"});
+      return false;
     }else{
-      console.log("this happened");
-      auth(this.state.email, this.state.pw).then(x => console.log(x))
-      .catch((error) => { this.setState(setErrorMsg('Invalid username/password.'))})
+      checkUsername(this.state.username, this.signUp, this.userNameFail);
+      
+    }
+    
+  }
+  
+  userNameFail = () => {
+    this.setState({usernameError:"a username must be unique"});
+  }
+  
+  signUp = () => {
+    auth(this.state.email, this.state.pw, this.state.username)
+    .catch((error) => { 
+      console.log(error);
+      this.handleErr(error.message);
+    })
+  }
+  
+  signIn = (e = null) => {
+    if(e){
+      e.preventDefault();
+    }
+    
+    this.setState({emailError:''});
+    this.setState({pwError:''});
+    
+    if(this.state.authed){
+      this.handleLogin();
+    }else{
+      this.checkSignUp();
     }
   }
   
@@ -78,7 +127,7 @@ export default class Login extends React.Component {
     const actions = [
       <FlatButton
         style={{color:'white'}}
-        label={this.state.buttonMessage}
+        label={(this.state.authed? 'Enter Password' : 'Sign Up')}
         primary={true}
         backgroundColor={'rgb(0, 188, 212)'}
         onClick={this.signIn}
@@ -95,19 +144,35 @@ export default class Login extends React.Component {
                 onRequestClose={this.handleClose}
               >
               <TextField
+                required
+                id="username"
+                hintText="awesome_thom"
+                floatingLabelText="User Name"
+                fullWidth={true}
+                errorText={(this.state.usernameError ? this.state.usernameError : null)}
+                onKeyDown={this.handleKeyDown}
+                onChange={this.inputChange}
+              /><br />
+              <TextField
+                required
                 id="email"
                 hintText="user@email.com"
                 floatingLabelText="Email"
+                errorText={(this.state.emailError ? this.state.emailError : null)}
                 fullWidth={true}
+                onKeyDown={this.handleKeyDown}
                 onChange={this.handleEmailChange}
               /><br />
               <TextField
+                required
                 id="pw"
                 hintText="super secret pass"
                 floatingLabelText="Password"
+                errorText={(this.state.pwError ? this.state.pwError : null)}
                 type="password"
                 fullWidth={true}
-                onChange={this.handlePwChange}
+                onKeyDown={this.handleKeyDown}
+                onChange={this.inputChange}
               />
             </Dialog>
         </div>

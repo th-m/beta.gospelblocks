@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import Markdown from 'react-remarkable';
 import {  update } from '../helpers/database';

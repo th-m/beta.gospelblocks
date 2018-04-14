@@ -6,9 +6,15 @@ import { listen } from '../helpers/database'
 import FontAwesome  from 'react-fontawesome';
 import CRUDBlockDialog from './CRUDBlockDialog'
 
-import {Card, CardActions, CardHeader, CardTitle} from 'material-ui/Card';
+import {Card, CardActions, CardTitle} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 
+import { SortableHandle } from 'react-sortable-hoc';
+
+// NOTE original handle <FontAwesome name='arrows' size='2x' />
+
+const DragHandle = SortableHandle(() => <span style={{position:"relative", right:10}}>::</span>);
 
 export default class PinnedBlock extends Component {
   constructor(props){
@@ -34,19 +40,28 @@ export default class PinnedBlock extends Component {
   render(){
     return (
       <Card >
-        <CardHeader>
-            <FontAwesome
-              style={{float:'left'}}
-              name='share-alt'
-              size='2x'
-            />
-            <FontAwesome
-               name='ellipsis-v'
-               size='2x'
-               style={{float:'right'}}
-               onClick={()=>this.refs.editBlockDialog.toggleDialog()}
-             />
-        </CardHeader>
+        {/* <CardHeader> */}
+          <Toolbar>
+            <ToolbarGroup>
+              <FontAwesome
+                name='share-alt'
+                size='2x'
+              />
+            </ToolbarGroup>
+            <ToolbarGroup>
+              <DragHandle />
+            </ToolbarGroup>
+            <ToolbarGroup>
+              <FontAwesome
+                name='ellipsis-v'
+                size='2x'
+                onClick={()=>this.refs.editBlockDialog.toggleDialog()}
+              />
+              {/* <FontAwesome name='user' size='2x' /> */}
+            </ToolbarGroup>
+          </Toolbar>
+            
+        {/* </CardHeader> */}
         
         {/* {
           (this.state.blockData.coverImg ?  

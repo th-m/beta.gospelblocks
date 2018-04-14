@@ -12,10 +12,11 @@ function generateId(){
 }
 
 export function validateYouTubeUrl(url){
-        if (url != undefined || url != '') {
-            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+        if (url !== undefined || url !== '') {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+            // var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/; NOTE this was original before following warnign suggestions
             var match = url.match(regExp);
-            if (match && match[2].length == 11) {
+            if (match && match[2].length === 11) {
                 // Do anything for being valid
                 // if need to change the url to embed url then use below line
                 return 'https://www.youtube.com/embed/' + match[2] + '?autoplay=0';
@@ -134,7 +135,7 @@ export function addBit(blockId, bit, order = null){
       if(order){
        Object.keys(bits).reverse().forEach(x => {
           if(x >= order){
-              bits[parseInt(x) + 1] = bits[x];
+              bits[parseInt(x, 10) + 1] = bits[x];
           }else{
             bits[x] = bits[x];
           }
@@ -162,7 +163,7 @@ export function trash(uid,blockId){
     // NOTE check if pinned block;
     db.ref(`users/${uid}/pinnedBlocks`).once('value').then(function(data) {
         if(data.val()){
-          let k = Object.entries(data.val()).filter(x => {return x[1] == blockId} );
+          let k = Object.entries(data.val()).filter(x => {return x[1] === blockId} );
           if(k[0] && k[0][0]){
             db.ref(`users/${uid}/pinnedBlocks/${k[0][0]}`).remove();
           }
@@ -174,7 +175,7 @@ export function trash(uid,blockId){
     if(blockData.parentBlockId){
       db.ref(`blocks/${blockData.parentBlockId}/children`).once('value').then(function(data) {
           if(data.val()){
-            let l = Object.entries(data.val()).filter(x => {return x[1] != blockId} ).map(x => x[1]);
+            let l = Object.entries(data.val()).filter(x => {return x[1] !== blockId} ).map(x => x[1]);
             update(`blocks/${blockData.parentBlockId}/children`, l);
           }
       })

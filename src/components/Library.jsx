@@ -1,29 +1,21 @@
-import React, { Component, Fragment } from 'react';
-// import {Breadcrumbs} from 'material-ui-breadcrumbs/Breadcrumbs';
+import React, { Component } from 'react';
+
 import Paper from 'material-ui/Paper';
 import { getVolumes, getBooks, getChapters, getVerses, scriptureSearch } from '../helpers/scriptureAPI';
-import { listen, addBit, update, reduceList } from '../helpers/database';
+// import { listen, addBit, update, reduceList } from '../helpers/database';
+import { addBit } from '../helpers/database';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import FontAwesome  from 'react-fontawesome';
 import TextField from 'material-ui/TextField';
-// import Draggable from 'react-draggable'; 
-// import { DragSource } from 'react-dnd';
+
 import LibraryBreadCrumbs from './LibraryBreadCrumbs';
-
-const style = {
-  height: '74vh',
-  width: '100%',
-  textAlign: 'center',
-  display: 'inline-block',
-};
-
-
+import '../styles/App.css';
 
 const VerseCard = (props) => {
     return props.shelf.map(x => 
-      <div key={'k_'+(x.id?x.id:x.chapter)} draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
+      <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
           <Paper >
-           <h3  
+           <i  
              className="title" 
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
@@ -31,7 +23,7 @@ const VerseCard = (props) => {
              data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)} 
              onClick={this.handleClick}> 
              {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
-           </h3> 
+           </i> 
            <p className="text"> {x.verse_scripture} </p>
          </Paper>
        </div>
@@ -40,9 +32,9 @@ const VerseCard = (props) => {
 
 const SearchCard = (props) => {
     return props.shelf.map(x => 
-      <div key={'k_'+(x.id?x.id:x.chapter)} draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
+      <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
           <Paper >
-           <h3  
+           <i  
              className="title" 
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
@@ -50,7 +42,7 @@ const SearchCard = (props) => {
              data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)} 
              onClick={this.handleClick}> 
              {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
-           </h3> 
+           </i> 
            <p className="text"> {x.verse_scripture} </p>
          </Paper>
        </div>
@@ -66,12 +58,15 @@ const NoResults = (props) => (
 )
 
 const TabCard = (props) => {
-    return props.shelf.map(x => 
-        <Paper key={(x.id?x.id:x.chapter)} >
-            <h3  data-key={(x.id?x.id:x.chapter)} data-depth={props.depth} data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}  onClick={props.handleClick} > 
-             {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
-           </h3> 
-         </Paper>
+    return props.shelf.map(x =>
+          <Paper style={{ display: 'flex',  alignItems: 'center', justifyContent: 'center'}}  onClick={props.handleClick} key={(x.id?x.id:x.chapter)} 
+            data-key={(x.id?x.id:x.chapter)} data-depth={props.depth} data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)} >
+            <span  >
+              <h4 > 
+               {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
+             </h4> 
+           </span>
+           </Paper>
     )
 }
 
@@ -96,9 +91,14 @@ const SwitchFunction = (props) => {
            return ([
               <SearchCard {...props} />,
            ]);
-        break;
+        
+        default:
+          return ([
+           <TabCard {...props} handleClick={props.handleClick}/>,
+        ]);
      }
 }
+
 
 
 
@@ -174,10 +174,12 @@ export default class Library extends Component {
       chapterId : this.state.chapter
     }
     // Array.from(document.querySelectorAll('.bit')).forEach(x => console.log(x));
-    let bits = document.querySelectorAll('.bit');
+    console.log(verseData);
+    let bits = document.querySelectorAll('.Bit');
     bits.forEach((x, i) => {
       let d = this.createDropZone(i);
       x.parentNode.insertBefore(d, x);
+      // x.firstChild.classList.add("bit_box_shadow")
     });
     // console.log(bits.length);
     if(bits.length > 0){
@@ -187,6 +189,7 @@ export default class Library extends Component {
     
     setTimeout( () => {
       document.querySelectorAll('.drop_zone').forEach(x => x.className+=" ready");
+      document.querySelectorAll('.Bit').forEach(x => x.classList.add("bit_box_shadow"));
     }, 50);
     e.dataTransfer.setData("verseData",  JSON.stringify(verseData));
   }
@@ -209,6 +212,7 @@ export default class Library extends Component {
   handleDragOver = (e) => {
     e.preventDefault();
   }
+  
   // This works with the drop event in the compoendium component
   handleDrag = (e) => {
     e.dataTransfer.setData("t",  JSON.stringify({test:'data'}));
@@ -216,50 +220,52 @@ export default class Library extends Component {
   
   handleStop = (e) => {
     e.preventDefault();
+    document.querySelectorAll('.Bit').forEach(x => x.classList.remove("bit_box_shadow"));
     document.querySelectorAll('.drop_zone').forEach(x => {
       x.classList.remove("ready"); 
       setTimeout( () => {
         x.remove();
       }, 250);
     });
-    // document.querySelectorAll('.bit')
-    // .classList.remove("mystyle");
-    // console.log('handleStop', e);
   }
   
   handleTextChange =  (e) => {
       this.setState({[e.target.id]: e.target.value});
   }
   
+  findTab = (t) => {
+    if(t.dataset.depth){
+      return t.dataset;
+    }else{
+      // console.log(t.parentElement);
+      return this.findTab(t.parentElement)
+    }
+  }
+  
   handleClick= (e) => {
-    console.log(e);
     let tabs = this.state.tabs;
-    switch (e.target.dataset.depth) {
+    let dataset = this.findTab(e.target);
+    switch (dataset.depth) {
       case '0':
         console.log('get books');
-        this.setState({volume:e.target.dataset.key});
-        // this.setState({book:''});
-        // this.setState({chapter:''});
-        getBooks(e.target.dataset.key).then( x => this.setState({shelf:x, preface:'book_'}));
+        this.setState({volume:dataset.key});
+        getBooks(dataset.key).then( x => this.setState({shelf:x, preface:'book_'}));
         this.setState({depth:1});
-        tabs.push({key:e.target.dataset.key, depth:1, title: e.target.dataset.title});
+        tabs.push({key:dataset.key, depth:1, title: dataset.title});
         this.setState({tabs:tabs});
         break;
       case '1':
-        // console.log('get chapters');
-        this.setState({book:e.target.dataset.key});
-        // this.setState({chapter:''});
-        getChapters(this.state.volume, e.target.dataset.key).then( x => this.setState({shelf:x, preface:'chapter_'}));
+        this.setState({book:dataset.key});
+        getChapters(this.state.volume, dataset.key).then( x => this.setState({shelf:x, preface:'chapter_'}));
         this.setState({depth:2});
-        tabs.push({key:e.target.dataset.key, depth:2, title: e.target.dataset.title});
+        tabs.push({key:dataset.key, depth:2, title: dataset.title});
         this.setState({tabs:tabs});
         break;
       case '2':
-        // console.log('get verses');
-        this.setState({chapter:e.target.dataset.key});
-        getVerses(this.state.volume, this.state.book, e.target.dataset.key).then( x => this.setState({shelf:x, preface:'verse_'}));
+        this.setState({chapter:dataset.key});
+        getVerses(this.state.volume, this.state.book, dataset.key).then( x => this.setState({shelf:x, preface:'verse_'}));
         this.setState({depth:3});
-        tabs.push({key:e.target.dataset.key, depth:3, title: e.target.dataset.title});
+        tabs.push({key:dataset.key, depth:3, title: dataset.title});
         this.setState({tabs:tabs});
         break;
       default:
@@ -315,57 +321,35 @@ export default class Library extends Component {
   
   render() {
     return (
-       <Paper style={style} zDepth={1} rounded={false} >
-         <LibraryBreadCrumbs ref="breadcrumbs" tabs={this.state.tabs} breadClick={this.breadClick}/>
-         <div className="libraryWindow">
-             <SwitchFunction {...this.state} handleClick={this.handleClick} handleDrag={this.handleStart} handleDragStop={this.handleStop}/>
-             {
-               // this.state.shelf.map(x => {
-               // {return (this.state.depth < 3)?    
-               //     (<Paper >
-               //      <h3 key={(x.id?x.id:x.chapter)} data-key={(x.id?x.id:x.chapter)} data-depth={this.state.depth} data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} onClick={this.handleClick}> 
-               //        {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
-               //      </h3> 
-               //    </Paper>)     
-               //     :
-               //    (<div draggable="true" onDragStart={this.handleStart} onDragEnd={this.handleStop} >
-               //          <Paper >
-               //           <h3  
-               //             className="title" 
-               //             key={(x.id?x.id:x.chapter)} 
-               //             data-key={(x.id?x.id:x.chapter)} 
-               //             data-depth={this.state.depth} 
-               //             data-title={(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)} 
-               //             onClick={this.handleClick}> 
-               //             {(x[this.state.preface+'title']?x[this.state.preface+'title']:x.chapter)}
-               //           </h3> 
-               //           <p className="text"> {x.verse_scripture} </p>
-               //         </Paper>
-               //       </div>
-               //     )
-               //   }
-               // })
-            }
-             
-         </div>
-         <Toolbar>
-            <ToolbarGroup>
-              <FontAwesome
-                 name='search'
-                 size='2x'
-                 onClick={this.handleSearch}
-               />
-               
-            </ToolbarGroup>
-            <TextField
-              id="searchString"
-              onChange={this.handleTextChange}
-              hintText="Search"
-              value={this.state.searchString}
-              // multiLine={true}
-              fullWidth={true}
-            />
-         </Toolbar>       
+       <Paper zDepth={1}>
+         <div className="Library">
+           <div>
+             <LibraryBreadCrumbs ref="breadcrumbs" tabs={this.state.tabs} breadClick={this.breadClick}/>
+           </div>
+           <div className={"libraryWindow " + (this.state.depth < 3? "grid": null)}>
+               <SwitchFunction {...this.state} handleClick={this.handleClick} handleDrag={this.handleStart} handleDragStop={this.handleStop}/>
+           </div>
+           <div>
+             <Toolbar>
+                <ToolbarGroup>
+                  <FontAwesome
+                     name='search'
+                     size='2x'
+                     onClick={this.handleSearch}
+                   />
+                   
+                </ToolbarGroup>
+                <TextField
+                  id="searchString"
+                  onChange={this.handleTextChange}
+                  hintText="Search"
+                  value={this.state.searchString}
+                  // multiLine={true}
+                  fullWidth={true}
+                />
+             </Toolbar>       
+           </div>
+          </div>
        </Paper>
     );
   }
