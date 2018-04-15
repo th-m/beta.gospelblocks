@@ -110,7 +110,7 @@ export default class Block extends Component {
       <div>
         <div className="nav_items">
           <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} useDragHandle={true}  />
-          <CreateBlock parentBlockId={this.state.id} />
+          <CreateBlock parentBlockId={this.state.id} uid={this.props.user.uid}/>
         </div>
         <div className="study_container">
           <Library  blockId={this.state.compendiumId} />

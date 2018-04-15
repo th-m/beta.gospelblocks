@@ -8,7 +8,7 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 // const DragHandle = SortableHandle(() => <span>::</span>);
 
 const SortableItem = SortableElement(({value}) => {
-  console.log(value);
+  // console.log(value);
   return (
     <li>
       <PinnedBlock key={value.key} blockId={value.blockId} uid={value.uid}/>
@@ -34,13 +34,13 @@ export default class Dashboard extends Component {
       pinnedBlocks: [],
       list:[],
     };
-    console.log(props);
+    // console.log(props);
   }
   
   componentDidMount(){
     const path = 'users/'+ this.props.user.uid;
     listen(path).on("value", this.gotData, this.errData);
-    console.log(this.props.updateBlockTitle);
+    // console.log(this.props.updateBlockTitle);
     // this.props.updateBlockId();
   }
   
@@ -88,6 +88,7 @@ export default class Dashboard extends Component {
         <div className="dashboard_grid">
           <SortableList items={this.state.list} axis="xy" onSortEnd={this.onSortEnd} useDragHandle={true} />
         </div>
+        {(this.state.list.length < 1) ? <div><br /><br /><br /></div> : null }
       <CreateBlock uid={this.props.user.uid} pinIt={true} />
     </div>
     );

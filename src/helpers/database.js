@@ -54,6 +54,32 @@ function clean(obj) {
   }
 }
 
+
+// NOTE this is a really bad way to do this. TODO improve multiselect to hold data sepearate from display
+function getUserIdsFromUsername (usernames) {
+  return ref.child('users').once("value", function(snapshot) {
+      let users = snapshot.val();
+      return Object.keys(users).map( (key) => {
+          if(usernames.includes(users[key].info.username)){
+            return key
+          }
+      });
+      
+      
+  });
+}
+
+export function getUsername (uid) {
+  return db.ref('users/'+uid+'/info/username').once("value").then(snapshot => {
+    return snapshot.val();
+  });
+}
+export function getBlockInfo (bid) {
+  return db.ref('blocks/'+bid).once("value").then(snapshot => {
+    return snapshot.val();
+  });
+}
+
 export function getUsersList(){
   const path = '/users/';
   return  db.ref(path).once('value').then(function(data) {
@@ -67,7 +93,7 @@ export function getBlock({destructure_obj}){
   return "false";
 }
 
-export function createBlock(block){
+export function createBlock(block, uid){
   console.log(block);
   // clean the object of any empty values
   clean(block);
@@ -85,6 +111,7 @@ export function createBlock(block){
       let updates = {};
       block.created = Date().toLocaleString();
       block.id = id;
+      block.creatorId = uid;
       updates['/blocks/' + id] = block;
       return ref.update(updates).then(x => id);
     }); 

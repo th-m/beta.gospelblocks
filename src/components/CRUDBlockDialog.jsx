@@ -10,7 +10,7 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MultiSelect from './MultiSelect'
 
-import { createBlock, pinBlock, update, updateChildren, generateLongId, trash } from '../helpers/database'
+import { createBlock, pinBlock, update, updateChildren, generateLongId, trash, getBlockInfo } from '../helpers/database'
 import '../styles/App.css';
 
 const defaultBlock = {
@@ -44,6 +44,8 @@ export default class CRUDBlockDialog extends Component {
     blockData.editors = this.state.editors;
     this.state.blockData = blockData;
     
+  
+    
   }
   
   componentWillReceiveProps(nextProps){
@@ -54,10 +56,34 @@ export default class CRUDBlockDialog extends Component {
   }
   
   toggleDialog = () => {
+    
     if(this.props.createNew){
+      if(!this.props.parentBlockId){
       console.log("is createNew");
       this.setState({blockData:Object.create(defaultBlock)});
+      }else{
+        console.log("creating new with parent");
+        console.log(this.props);
+        getBlockInfo(this.props.parentBlockId).then(x => {
+          console.log("creating new with parent", x);
+          let blockData = Object.create(defaultBlock);
+          
+          blockData.viewers = x.viewers;
+          blockData.editors = x.editors; 
+          blockData.creatorId = this.props.uid;
+          if(x.viewersList){
+            blockData.viewersList = x.viewersList;
+          }
+          if(x.editorsList){
+            blockData.editorsList = x.editorsList;
+          }
+          this.state.blockData = blockData;
+          
+          this.setState({blockData:blockData});
+        });
+      }
     }
+    
     this.setState({dialogOpen: !this.state.dialogOpen});
     // NOTE Save to the database when dialog is closed
     if((this.state.dialogOpen && this.state.blockData.title) || (this.state.blockData.description && this.props.blockId)){
@@ -79,6 +105,7 @@ export default class CRUDBlockDialog extends Component {
     // This hack allows us to mack a generic function out of material-ui dropdownmenu
     blockData[e.target.parentElement.parentElement.parentElement.id] = v;
     this.setState({blockData:blockData});
+    console.log(blockData);
   }
   
   addBlock = () => {
@@ -86,8 +113,7 @@ export default class CRUDBlockDialog extends Component {
     if(this.props.parentBlockId)
       blockData.parentBlockId = this.props.parentBlockId;
     
-
-    createBlock(blockData)
+    createBlock(blockData, this.props.uid)
     .then( x => {
         console.log("block created", this.state, this.props, "and x is " + x);
         if(this.props.pinIt) 
@@ -102,7 +128,15 @@ export default class CRUDBlockDialog extends Component {
 
   handleMultiSelect = (data) => {
     this.setState(data);
-    console.log(this.state);
+    let blockData = this.state.blockData;
+    Object.keys(data).forEach(k => {
+      blockData[k] = data[k];
+    })
+    // this.state.blockData
+    // console.log(data)
+    // console.log(this.state);
+    // console.log(blockData);
+    this.setState({blockData:blockData});
   }
   
   trashBlock = () => {
@@ -166,7 +200,7 @@ export default class CRUDBlockDialog extends Component {
               <MenuItem id="viewers" value={3} primaryText="Private" />
             </DropDownMenu>
             
-            {(this.state.blockData.viewers === 2)? <MultiSelect name="viewersList" handleData={this.handleMultiSelect} /> : null}
+            {(this.state.blockData.viewers === 2)? <MultiSelect name="viewersList" handleData={this.handleMultiSelect} selectedUsers={this.state.blockData.viewersList} /> : null}
             <br />
           <FontAwesome
              name='pencil'
@@ -179,7 +213,7 @@ export default class CRUDBlockDialog extends Component {
              <MenuItem id="editors" value={3} primaryText="Private" />
            </DropDownMenu>
            
-           {(this.state.blockData.editors === 2)? <MultiSelect name="editorsList" handleData={this.handleMultiSelect} /> : null}
+           {(this.state.blockData.editors === 2)? <MultiSelect name="editorsList" handleData={this.handleMultiSelect} selectedUsers={this.state.blockData.editorsList} /> : null}
         
         </Dialog>
     );
