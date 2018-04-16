@@ -14,7 +14,7 @@ import { SortableHandle } from 'react-sortable-hoc';
 
 // NOTE original handle <FontAwesome name='arrows' size='2x' />
 
-const DragHandle = SortableHandle(() => <span style={{position:"relative", right:10}}>::</span>);
+const DragHandle = SortableHandle(() => <span className="drag_handle" style={{position:"relative", right:10}}>::</span>);
 
 export default class PinnedBlock extends Component {
   constructor(props){

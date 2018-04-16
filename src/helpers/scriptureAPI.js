@@ -32,6 +32,7 @@ export function getVerses(v,b,c){
 }
 export function scriptureSearch(s, p = 1,v = null ,b = null ,c = null){
   // http://api.gospelblocks.com/v1/search/dragon||wine
+  // TODO book id needs to be fixed;
   let url = baseURL+'search/'+s;
   
   if(v){

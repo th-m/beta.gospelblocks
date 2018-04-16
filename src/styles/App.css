@@ -99,7 +99,8 @@ body > ul , body > li{
 }
 
 .study_container{
-  height: 100%;
+  /* height: 100%; */
+  height: calc(100vh - 143px);
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -148,9 +149,11 @@ body > ul , body > li{
 }
 
 .compendiumWindow, .libraryWindow{
-  height: calc(100vh - 295px);
+  height: calc(100vh - 255px);
   overflow-y: scroll;
+  position: relative;
 }
+
 
 .addBlock{
   color:white;
@@ -167,7 +170,8 @@ body > ul , body > li{
 .App{
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 64px calc(100vh - 128px) 64px;
+  grid-template-rows: 64px calc(100vh - 64px);
+  /* grid-template-rows: 64px calc(100vh - 128px) 64px; NOTE this was with footer */
   overflow-y: hidden;
 }
 .drag_handle:hover{
@@ -182,6 +186,10 @@ body > ul , body > li{
   top:5px;
   right:5px;
   opacity: .5;
+}
+
+.drop_zone{
+  z-index: 99999;
 }
 
 .Bit h1, .Bit h2, .Bit h3, .Bit h4, .Bit h5, .Bit h6{
@@ -212,6 +220,38 @@ body > ul , body > li{
 
 .bit_box_shadow{
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px !important;
+}
+
+.compendiumWindow{
+  display:flex;
+  flex-direction:column;
+}
+
+.defaultDragArea{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.editText{
+  color: #555;
+}
+
+.deleteBit{
+  float: right;
+  position: relative;
+  right: 50px;
+}
+.deleteBit:hover{
+  cursor: pointer;
+}
+.saveBit{
+  float: right;
+  position: relative;
+  right: 33px;
+}
+.saveBit:hover{
+  cursor: pointer;
 }
 /* .libraryWindow.grid div{
   

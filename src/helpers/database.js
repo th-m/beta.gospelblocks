@@ -56,18 +56,18 @@ function clean(obj) {
 
 
 // NOTE this is a really bad way to do this. TODO improve multiselect to hold data sepearate from display
-function getUserIdsFromUsername (usernames) {
-  return ref.child('users').once("value", function(snapshot) {
-      let users = snapshot.val();
-      return Object.keys(users).map( (key) => {
-          if(usernames.includes(users[key].info.username)){
-            return key
-          }
-      });
-      
-      
-  });
-}
+// function getUserIdsFromUsername (usernames) {
+//   return ref.child('users').once("value", function(snapshot) {
+//       let users = snapshot.val();
+//       return Object.keys(users).map( (key) => {
+//           if(usernames.includes(users[key].info.username)){
+//             return key
+//           }
+//       });
+// 
+// 
+//   });
+// }
 
 export function getUsername (uid) {
   return db.ref('users/'+uid+'/info/username').once("value").then(snapshot => {
@@ -220,7 +220,17 @@ export function listen(path){
   return db.ref(path);
 }
 
-
+export function deleteBit(blockId, bitKey){
+    console.log(blockId, bitKey);
+    db.ref(`blocks/${blockId}/bits`).once('value').then(function(data) {
+      let ents = Object.entries(data.val());
+      console.log(ents);
+      let l = Object.entries(data.val()).filter(x => {return parseInt(x[0], 10) !== bitKey} ).map(x => x[1]);
+      console.log(l);
+      update(`blocks/${blockId}/bits`, l);
+    });
+  // db.ref(`blocks/${blockId}`).remove();
+}
 // Helper functions 
 // NOTE this function is used when reducing lists of blockIds in preperation for updates to firebase.
 export function reduceList (r, obj){

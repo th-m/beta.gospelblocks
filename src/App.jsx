@@ -11,7 +11,7 @@ import User from './static/User';
 import Block from './components/Block'
 import Dashboard from './components/Dashboard'
 import Header from './components/Header';
-import Footer from './components/Footer';
+// import Footer from './components/Footer';
 
 import { firebaseAuth } from './config/constants';
 // import { PrivateRoute } from './helpers/routes';
@@ -72,9 +72,9 @@ class App extends Component {
                 
                 <Route path="/contact" exact component={Contact} /> 
               </div>
-              <div className="AppFooter">
+              {/* <div className="AppFooter">
                 <Footer authed={this.state.authed} />
-              </div>
+              </div> */}
             </div>
           </Router>
       </MuiThemeProvider>

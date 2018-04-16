@@ -77,7 +77,7 @@ export default class CRUDBlockDialog extends Component {
           if(x.editorsList){
             blockData.editorsList = x.editorsList;
           }
-          this.state.blockData = blockData;
+          // this.state.blockData = blockData;
           
           this.setState({blockData:blockData});
         });

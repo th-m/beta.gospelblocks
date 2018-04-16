@@ -9,7 +9,7 @@ import { Card } from 'material-ui/Card';
 
 import { SortableHandle } from 'react-sortable-hoc';
 
-const DragHandle = SortableHandle(() => <span className="drag_handle" style={{position:"relative", right:10}}>::</span>);
+const DragHandle = SortableHandle(() => <span className="drag_handle" style={{position:"relative", right:10, opacity:.5}}>::</span>);
 
 export default class Block extends Component {
   constructor(props){
@@ -58,10 +58,10 @@ export default class Block extends Component {
         <Card className="pointer nav_item" >
             <h3>
               <DragHandle />
-              {this.state.blockTitle}
+              <span style={{position:'relative', top:'1px'}}>{this.state.blockTitle}</span>
               <FontAwesome
                  name='ellipsis-v'
-                 style={{float:'right', position:'relative', left:15, top:5}}
+                 style={{float:'right', position:'relative', left:15, top:5, padding:'0 10px 0 0px'}}
                  onClick={()=>this.refs.editBlockDialog.toggleDialog()}
                />
              </h3>

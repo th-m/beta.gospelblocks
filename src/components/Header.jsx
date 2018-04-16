@@ -65,7 +65,7 @@ export default class Header extends Component {
   
       <div style={{position:'relative'}}>
         <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
-           <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', margin:10, zIndex:1200, textAlign:'center' }}>{this.state.blockData.title}</h2> 
+           <h2 style={{position:'absolute', top:0, left: '28%', width:'40%', zIndex:1200, textAlign:'center', color:'white', fontWeight:"400" }}>{this.state.blockData.title}</h2> 
         </div>
         <AppBar
           style={{textAlign: 'left'}}

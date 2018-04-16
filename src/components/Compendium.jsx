@@ -12,6 +12,7 @@ import TextField from 'material-ui/TextField';
 import Markdown from 'react-remarkable';
 
 import Bit from './Bit'
+// import Verse from './Verse'
 import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
 
 // const style = {
@@ -23,15 +24,17 @@ import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'rea
 
 const DragHandle = SortableHandle(() =>  <span className="drag_handle">::</span>);
 
-const SortableItem = SortableElement(({value}) => {
+const SortableItem = SortableElement(({blockId, value}) => {
   // console.log(value);
+  // console.log(blockId);
   let content = "";
   switch (value.type) {
     case "verse":
-      content = <div> <i>{value.title}</i><p>{value.text}</p> <DragHandle /></div>;
-      break;
+    case "searchVerse":
+      // content = <div> <i>{value.title}</i><span>{value.text}</span> <DragHandle /></div>;
+      // break;
     case "note":
-      content = <Fragment> <Bit keyIndex={value.key} {...value} /> <DragHandle /></Fragment>
+      content = <Fragment> <Bit keyIndex={value.key} blockId={blockId} {...value} /> <DragHandle /></Fragment>
       break;
     default:
   }
@@ -46,17 +49,17 @@ const SortableItem = SortableElement(({value}) => {
   
 });
 
-const SortableList = SortableContainer(({items}) => {
-  
-  items.map((value, index) =>  {
+const SortableList = SortableContainer( (props) => {
+  // console.log(props);
+  props.items.map((value, index) =>  {
     value.key = index;
     return value;
   });
-  
+  // 
   return (
     <div>
-      {items.map((value, index) => (
-        <SortableItem key={`bit-${index}`} index={index} value={value} />
+      {props.items.map((value, index) => (
+        <SortableItem key={`bit-${index}`} blockId={props.blockId} index={index} value={value} />
       ))}
     </div>
   );
@@ -118,6 +121,9 @@ export default class Compendium extends Component {
   }
   
   handleOnDrop = (e) => {
+    console.log(e)
+    e.stopPropagation();
+    console.log('this happened');
     let data = JSON.parse(e.dataTransfer.getData("verseData"));
     e.target.removeAttribute("style");
     
@@ -173,17 +179,9 @@ export default class Compendium extends Component {
                  <Tab  label={this.state.title}  />)
              </Tabs>
            </div>
-           <div className="compendiumWindow" >
-             {
-               (this.state.bits.length < 1 ?
-                 <div className="drop_zone" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order="0">
-                   &nbsp;
-                 </div>
-                 :null
-               )
-             }
-               <SortableList items={this.state.bits} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
-            
+           <div className="compendiumWindow">
+               <SortableList items={this.state.bits} blockId={this.props.blockId} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
+               <div className="defaultDragArea" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={(this.state.bits ? this.state.bits.length-1 : 0)}></div>
           </div> 
           <div>
             <Toolbar>

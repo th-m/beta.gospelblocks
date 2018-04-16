@@ -11,6 +11,10 @@ import TextField from 'material-ui/TextField';
 import LibraryBreadCrumbs from './LibraryBreadCrumbs';
 import '../styles/App.css';
 
+
+// TODO fix. we are returning a book id that is relative to all books in the database rather than just the books in that volume. 
+
+// TODO we are basically doing the same thing in verseCard and Search Card.
 const VerseCard = (props) => {
     return props.shelf.map(x => 
       <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
@@ -20,17 +24,22 @@ const VerseCard = (props) => {
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
              data-depth={props.depth} 
-             data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)} 
+             data-title={x.verse_title_short}
+             data-volume={x.volume_id} 
+             data-book={x.book_id} 
+             data-chapter={x.chapter}  
+             data-type="verse"
              onClick={this.handleClick}> 
-             {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
+             {x.verse}
            </i> 
-           <p className="text"> {x.verse_scripture} </p>
+           <span className="text"> {x.verse_scripture} </span>
          </Paper>
        </div>
     )
 }
 
 const SearchCard = (props) => {
+    
     return props.shelf.map(x => 
       <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
           <Paper >
@@ -39,11 +48,15 @@ const SearchCard = (props) => {
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
              data-depth={props.depth} 
-             data-title={(x[props.preface+'title']?x[props.preface+'title']:x.chapter)} 
+             data-title={x.verse_title_short} 
+             data-volume={x.volume_id} 
+             data-book={x.book_id} 
+             data-chapter={x.chapter} 
+             data-type="searchVerse"
              onClick={this.handleClick}> 
-             {(x[props.preface+'title']?x[props.preface+'title']:x.chapter)}
+             {x.verse_title_short}
            </i> 
-           <p className="text"> {x.verse_scripture} </p>
+           <span className="text"> {x.verse_scripture} </span>
          </Paper>
        </div>
     )
@@ -72,7 +85,7 @@ const TabCard = (props) => {
 
 const SwitchFunction = (props) => {
 
-     if(props.shelf.length < 1){
+     if(!props.shelf || props.shelf.length < 1){
        return ( <NoResults />)
      }
      
@@ -127,6 +140,12 @@ export default class Library extends Component {
     }
   }
   
+  handleKeyDown = (e) => {
+    if(e.key === "Enter"){
+      this.handleSearch();
+    }
+  }
+  
   componentWillReceiveProps(nextProps){
     // const path = 'blocks/'+ nextProps.blockId;
     // listen(path).on("value", this.gotData, this.errData);
@@ -147,7 +166,7 @@ export default class Library extends Component {
     scriptureSearch(this.state.searchString, this.state.page , this.state.volume , this.state.book , this.state.chapter)
     .then( x => {
       this.setState({ shelf : x }); 
-      this.setState({ depth : 3 }); 
+      this.setState({ depth : 4 }); 
       console.log(x);
     })
   }
@@ -165,16 +184,20 @@ export default class Library extends Component {
   }
   
   handleStart = (e) => {
+    // eventVerse = e.target.querySelector('.title').dataset;
     let verseData = {
-      type: 'verse',
-      title : e.target.querySelector('.title').innerHTML,
+      type:  e.target.querySelector('.title').dataset.type,
+      title : e.target.querySelector('.title').dataset.title,
       text :e.target.querySelector('.text').innerHTML,
-      volumeId : this.state.volume,
-      bookId : this.state.book,
-      chapterId : this.state.chapter
+      // volumeId : this.state.volume,
+      // bookId : this.state.book,
+      // chapterId : this.state.chapter,
+      volumeId : e.target.querySelector('.title').dataset.volume,
+      bookId : e.target.querySelector('.title').dataset.book,
+      chapterId : e.target.querySelector('.title').dataset.chapter
     }
     // Array.from(document.querySelectorAll('.bit')).forEach(x => console.log(x));
-    console.log(verseData);
+    // console.log(verseData);
     let bits = document.querySelectorAll('.Bit');
     bits.forEach((x, i) => {
       let d = this.createDropZone(i);
@@ -343,6 +366,7 @@ export default class Library extends Component {
                   id="searchString"
                   onChange={this.handleTextChange}
                   hintText="Search"
+                  onKeyDown={this.handleKeyDown}
                   value={this.state.searchString}
                   // multiLine={true}
                   fullWidth={true}
