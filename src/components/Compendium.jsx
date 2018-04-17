@@ -72,24 +72,70 @@ export default class Compendium extends Component {
     this.state = {
       id: this.props.blockId,
       bits: [],
-      title: 'Compendium',
+      title: (this.props.compendiumTitle? this.props.compendiumTitle : 'Compendium'),
       dialogOpen: false,
       notePreview: false,
       note: '',
+      keysPressed:{}
     };
     // console.log(props);
   }
   
   componentDidMount(){
-    const path = 'blocks/'+ this.state.id;
-    listen(path).on("value", this.gotData, this.errData);
+    
+    // const path = 'blocks/'+ this.props.blockId +'/bits';
+    listen('blocks/'+ this.props.blockId +'/bits').on("value", this.gotData, this.errData);
+    listen('blocks/'+ this.props.blockId +'/title').once("value", this.gotBlockTitle, this.errData);
   }
   
   componentWillReceiveProps(nextProps){
     // console.log("compendium" ,nextProps);
-    const path = 'blocks/'+ nextProps.blockId;
-    listen(path).on("value", this.gotData, this.errData);
+    // const oldpath = 'blocks/'+ this.props.blockId +'/bits';
+    listen('blocks/'+ this.props.blockId +'/bits').off();
+    // const path = 'blocks/'+ nextProps.blockId+'/bits';
+    listen('blocks/'+ nextProps.blockId+'/bits').on("value", this.gotData, this.errData);
+    listen('blocks/'+ nextProps.blockId +'/title' ).once("value", this.gotBlockTitle, this.errData);
+    
     this.setState({id:nextProps.blockId});
+  }
+  
+  
+// accepted
+// Multiple keystroke detection is easy if you understand the concept
+// 
+// The way I do it is like this:
+
+// var map = {}; // You could also use an array
+// onkeydown = onkeyup = function(e){
+//     e = e || event; // to deal with IE
+//     map[e.keyCode] = e.type == 'keydown';
+//     /* insert conditional here */
+// }
+// 
+  handleKeyUp = (e) => {
+    let keysPressed = this.state.keysPressed;
+    keysPressed[e.key] = false;
+    this.setState({keysPressed});
+  }
+  handleKeyDown = (e) => {
+    let keysPressed = this.state.keysPressed;
+    keysPressed[e.key] = true;
+    
+    if(keysPressed["Enter"] && keysPressed["Shift"]){
+      console.log("We just want to enter");
+    }else if (keysPressed["Enter"]) {
+      
+      if(this.state.note !== ""){
+        this.saveNote();
+      }
+      
+      setTimeout(() => {
+        this.setState({note:""});
+      }, 300);
+      
+    }
+    
+    this.setState({keysPressed});
   }
   
   errData = (error) => {
@@ -97,33 +143,20 @@ export default class Compendium extends Component {
   }
   
   gotData = (data) => {
-    const blockData = data.val();
-    
-    if(!blockData)
-      return false;
-    
-    this.setState({title: blockData.title});
-    
-      
-    if(blockData.bits){
-      console.log('blockData.bits', blockData.bits);
-      // NOTE WTF am I doing here
-      // let bits = blockData.bits.map(x => {
-      //   x.uid = this.props.uid
-      //   x.blockId = this.props.blockId
-      //   return x;
-      // });
-      // console.log(bits);
-      this.setState({bits:blockData.bits});
-    }else{
-      this.setState({bits:[]});
-    }
+    const bits = data.val();
+    this.setState({bits: ( bits ? bits : [] ) });
   }
   
+  gotBlockTitle = (data) => {
+    const title = data.val();
+    this.setState({title: ( title ? title : "Compendium" ) });
+  }
+  
+  
   handleOnDrop = (e) => {
-    console.log(e)
+    // console.log(e)
     e.stopPropagation();
-    console.log('this happened');
+    // console.log('this happened');
     let data = JSON.parse(e.dataTransfer.getData("verseData"));
     e.target.removeAttribute("style");
     
@@ -150,6 +183,7 @@ export default class Compendium extends Component {
         this.setState({bits:x.bits}) 
       }
     });
+    this.setState({note:""}) 
   }
   
   handleTextChange =  (e) => {
@@ -185,7 +219,7 @@ export default class Compendium extends Component {
           </div> 
           <div>
             <Toolbar>
-              <ToolbarGroup>
+              {/* <ToolbarGroup>
                 <FontAwesome
                   name='edit'
                   size='2x'
@@ -227,7 +261,29 @@ export default class Compendium extends Component {
                     )}
                     
                   </Dialog>
-                </ToolbarGroup>
+                </ToolbarGroup> */}
+              
+                   {/* <ToolbarGroup>
+                     <FontAwesome
+                        name='search'
+                        size='2x'
+                        onClick={this.handleSearch}
+                      />
+                      
+                   </ToolbarGroup> */}
+                   <TextField
+                     id="note"
+                     onChange={this.handleTextChange}
+                     hintText="Write something profound"
+                     onKeyDown={this.handleKeyDown}
+                     onKeyUp={this.handleKeyUp}
+                     value={this.state.note}
+                     multiLine={true}
+                     fullWidth={true}
+                   />
+                   {/* TODO I need to create a textfield component that can be used to render the value with markup real time. */}
+                 {/* </TextField> */}
+                 {/* <Markdown>{this.state.note}</Markdown>  */}
               </Toolbar>
             </div> 
           </div>

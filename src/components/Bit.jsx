@@ -55,7 +55,7 @@ export default class extends Component {
       <span onDoubleClick={this.handleDoubleClick} onTouchStart={this.handleButtonPress} onTouchEnd={this.handleButtonRelease} onMouseDown={this.handleButtonPress} onMouseUp={this.handleButtonRelease}>
         {(this.props.type.includes('verse') || this.props.type.includes('searchVerse') ? <i>{this.props.title}</i>: null) }
         {(!this.state.editMode ?
-          <Markdown>{this.state.text}</Markdown> :
+          <Markdown options={{html: true, linkify: true, typographer: true}}>{this.state.text}</Markdown> :
           <span className="editText" >
             <span className="saveBit" >
               <FontAwesome name='pencil' onClick={this.handleNoteSave} />

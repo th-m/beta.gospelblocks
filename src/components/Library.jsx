@@ -354,14 +354,14 @@ export default class Library extends Component {
            </div>
            <div>
              <Toolbar>
-                <ToolbarGroup>
+                {/* <ToolbarGroup>
                   <FontAwesome
                      name='search'
                      size='2x'
                      onClick={this.handleSearch}
                    />
                    
-                </ToolbarGroup>
+                </ToolbarGroup> */}
                 <TextField
                   id="searchString"
                   onChange={this.handleTextChange}
