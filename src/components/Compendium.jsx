@@ -207,6 +207,7 @@ export default class Compendium extends Component {
           </div> 
           <div>
             <Toolbar>
+               {( this.state.writePerms?
                    <TextField
                      id="note"
                      onChange={this.handleTextChange}
@@ -216,7 +217,7 @@ export default class Compendium extends Component {
                      value={this.state.note}
                      multiLine={true}
                      fullWidth={true}
-                   />
+                   />: null )}
               </Toolbar>
             </div> 
           </div>
