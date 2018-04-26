@@ -36,7 +36,7 @@ export function scriptureSearch(s, p = 1,v = null ,b = null ,c = null){
   let url = baseURL+'search/'+s;
   
   if(v){
-    url += "/"+p;
+    url += "/"+v;
   }
   if(b){
     url += "/"+b;
@@ -47,6 +47,7 @@ export function scriptureSearch(s, p = 1,v = null ,b = null ,c = null){
   if(p){
     url += "/"+p;
   }
+  console.log(url);
   
   return fetch(url).then(function(response) {
      return response.json();
