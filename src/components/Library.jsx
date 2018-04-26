@@ -19,7 +19,7 @@ const VerseCard = (props) => {
     return props.shelf.map(x => 
       <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
           <Paper >
-           <i  
+           <b  
              className="title" 
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
@@ -31,7 +31,7 @@ const VerseCard = (props) => {
              data-type="verse"
              onClick={this.handleClick}> 
              {x.verse}
-           </i> 
+           </b> 
            <span className="text"> {x.verse_scripture} </span>
          </Paper>
        </div>
@@ -43,7 +43,7 @@ const SearchCard = (props) => {
     return props.shelf.map(x => 
       <div key={'k_'+(x.id?x.id:x.chapter)} className="Verse" draggable="true" onDragStart={props.handleDrag} onDragEnd={props.handleDragStop} >
           <Paper >
-           <i  
+           <b  
              className="title" 
              key={(x.id?x.id:x.chapter)} 
              data-key={(x.id?x.id:x.chapter)} 
@@ -55,7 +55,7 @@ const SearchCard = (props) => {
              data-type="searchVerse"
              onClick={this.handleClick}> 
              {x.verse_title_short}
-           </i> 
+           </b> 
            <span className="text"> {x.verse_scripture} </span>
          </Paper>
        </div>
@@ -349,7 +349,7 @@ export default class Library extends Component {
            <div>
              <LibraryBreadCrumbs ref="breadcrumbs" tabs={this.state.tabs} breadClick={this.breadClick}/>
            </div>
-           <div className={"libraryWindow " + (this.state.depth < 3? "grid": null)}>
+           <div className={"libraryWindow " + (this.state.depth < 3? "grid": "")}>
                <SwitchFunction {...this.state} handleClick={this.handleClick} handleDrag={this.handleStart} handleDragStop={this.handleStop}/>
            </div>
            <div>

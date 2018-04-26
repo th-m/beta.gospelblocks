@@ -54,6 +54,15 @@ function clean(obj) {
   }
 }
 
+function toObject(arr) {
+  var rv = {};
+  if(!Array.isArray(arr)) {
+    return arr;
+  }
+  for (var i = 0; i < arr.length; ++i)
+    rv[arr[i]] = arr[i];
+  return rv;
+}
 
 // NOTE this is a really bad way to do this. TODO improve multiselect to hold data sepearate from display
 // function getUserIdsFromUsername (usernames) {
@@ -94,24 +103,81 @@ export function getBlock({destructure_obj}){
 }
 
 export function createBlock(block, uid){
-  console.log(block);
   // clean the object of any empty values
   clean(block);
   
   // if we have a id provided to the function we will use that 
   if(block.id){
-    console.log("we already have an id", block.id);
     let updates = {};
     block.created = Date().toLocaleString();
     updates['/blocks/' + block.id] = block;
+    
+    if(!block.editorsList){
+      block.editorsList = {[uid]: uid};
+    }else{
+      if(Array.isArray(block.editorsList) && !block.editorsList.includes(uid)){
+        block.editorsList.push(uid);
+      }
+    }
+    
+    if(Array.isArray(block.editorsList)){
+      block.editorsList = toObject(block.editorsList);
+    }
+    
+    console.log(block);
+    if(block.editors === 3){
+      block.editorsList = {};
+    }
+    
+    if(!block.viewersList){
+      block.viewersList = {[uid]: uid};
+    }else{
+      if(Array.isArray(block.viewersList) && !block.viewersList.includes(uid)){
+        block.viewersList.push(uid);
+      }
+    }
+    
+    if(Array.isArray(block.viewersList)){
+      block.viewersList = toObject(block.viewersList);
+    }
+    
+    if(block.viewers === 3){
+      block.viewersList = {};
+    }
+    
     return ref.update(updates).then(x =>  block.id);
+    
   }else{
     return getNewId().then(id => {
-      console.log("the fired get new id", id);
+      // console.log("the fired get new id", id);
       let updates = {};
       block.created = Date().toLocaleString();
       block.id = id;
       block.creatorId = uid;
+      // console.log(block);
+      if(Array.isArray(block.editorsList) && !block.editorsList.includes(uid)){
+        block.editorsList.push(uid);
+      }
+      
+      if(Array.isArray(block.editorsList)){
+        block.editorsList = toObject(block.editorsList);
+      }
+      
+      if(Array.isArray(block.viewersList) && !block.viewersList.includes(uid)){
+        block.viewersList.push(uid);
+      }
+      
+      if(Array.isArray(block.viewersList)){
+        block.viewersList = toObject(block.viewersList);
+      }
+      
+      if(block['viewers'] === 2){
+        block.viewers = 2;
+      }
+      if(block['editors'] === 2){
+        block.editors = 2;
+      }
+    
       updates['/blocks/' + id] = block;
       return ref.update(updates).then(x => id);
     }); 
@@ -240,4 +306,27 @@ export function reduceList (r, obj){
       }
   }
   return r;
+}
+
+export function checkWrite(blockId, uid){
+  return db.ref(`blocks/${blockId}`).once('value').then( (data) => {
+     let blockData = data.val();
+     if(!blockData) return false;
+     if(blockData.editors === 1 || (blockData.editorsList && Object.keys(blockData.editorsList).includes(uid)) || blockData.creatorId === uid){
+       return true;
+     }else{
+       return false;
+     }
+  });
+}
+export function checkRead(blockId, uid){
+  return db.ref(`blocks/${blockId}`).once('value').then( (data) => {
+    let blockData = data.val();
+    if(!blockData) return false;
+    if(blockData.viewers === 1 || (blockData.viewersList && Object.keys(blockData.viewersList).includes(uid)) || blockData.creatorId === uid){
+      return true;
+    }else{
+      return false;
+    }
+ });
 }

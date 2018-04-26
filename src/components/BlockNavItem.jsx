@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import { listen } from '../helpers/database';
+import React, { Component, Fragment } from 'react';
+import { listen, checkWrite, checkRead } from '../helpers/database';
 import CRUDBlockDialog from './CRUDBlockDialog';
 import FontAwesome  from 'react-fontawesome';
+import { firebaseAuth } from '../config/constants';
 // import {Context, DataStore} from '../Context'
 // import {  Link } from 'react-router-dom';
 
@@ -19,7 +20,10 @@ export default class Block extends Component {
       blockTitle: "",
       blockData: "",
       blockId: this.props.blockId,
+      writePerms:false,
+      readPerms:false,
     };
+    console.log(props);
   }
   
   componentDidMount(){
@@ -30,7 +34,20 @@ export default class Block extends Component {
   componentWillReceiveProps(nextProps){
     const path = 'blocks/'+ nextProps.blockId;
     this.setState({blockId:nextProps.blockId});
+    
+    
     listen(path).on("value", this.gotData, this.errData);
+  }
+  
+  componentDidMount () {
+    firebaseAuth().onAuthStateChanged((user) => {
+      checkWrite(this.state.blockId, user.uid).then(x => {
+        this.setState({ writePerms:  x });
+      });
+      checkRead(this.state.blockId, user.uid).then(x => {
+        this.setState({ readPerms:  x });
+      });
+    })
   }
   
   errData = (error) => {
@@ -54,28 +71,34 @@ export default class Block extends Component {
   
   render(){
     return (
-      <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
-        <Card className="pointer nav_item" >
-            <h3>
-              <DragHandle />
-              <span style={{position:'relative', top:'1px'}}>{this.state.blockTitle}</span>
-              <FontAwesome
-                 name='ellipsis-v'
-                 style={{float:'right', position:'relative', left:15, top:5, padding:'0 10px 0 0px'}}
-                 onClick={()=>this.refs.editBlockDialog.toggleDialog()}
-               />
-             </h3>
-        </Card>
-        <CRUDBlockDialog
-          ref="editBlockDialog" 
-          blockId={this.props.blockId} 
-          blockData={this.state.blockData} 
-          pinIt={this.props.pinIt}
-          uid={this.props.uid}
-          buttonText="Update"
-          isPinned={true}
-        />
-      </div>
+      <Fragment>
+        {(this.state.readPerms ?
+          <div  onDoubleClick={this.redirect}  onClick={this.updateCompendium}>
+            <Card className="pointer nav_item" >
+                <h3>
+                  {(this.state.writePerms? <DragHandle /> : null)}
+                  <span style={{position:'relative', top:'1px'}}>{this.state.blockTitle}</span>
+                  {(this.state.writePerms?   
+                    <FontAwesome
+                       name='ellipsis-v'
+                       style={{float:'right', position:'relative', left:15, top:5, padding:'0 10px 0 0px'}}
+                       onClick={()=>this.refs.editBlockDialog.toggleDialog()}
+                     /> : null)}
+                
+                 </h3>
+            </Card>
+            <CRUDBlockDialog
+              ref="editBlockDialog" 
+              blockId={this.props.blockId} 
+              blockData={this.state.blockData} 
+              pinIt={this.props.pinIt}
+              uid={this.props.uid}
+              buttonText="Update"
+              isPinned={true}
+            />
+          </div> :
+          null )}
+        </Fragment>
     );
   }
 }

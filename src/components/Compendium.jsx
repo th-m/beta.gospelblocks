@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import Paper from 'material-ui/Paper';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import { listen, addBit, update } from '../helpers/database';
+import { listen, addBit, update, checkWrite, checkRead } from '../helpers/database';
 // import { listen, addBit, update, reduceList, validateYouTubeUrl } from '../helpers/database';
 // import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
@@ -10,31 +10,22 @@ import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import Markdown from 'react-remarkable';
+import { firebaseAuth } from '../config/constants';
 
 import Bit from './Bit'
 // import Verse from './Verse'
 import {SortableContainer, SortableElement, SortableHandle, arrayMove} from 'react-sortable-hoc';
 
-// const style = {
-//   height: '74vh',
-//   width: '100%',
-//   textAlign: 'center',
-//   display: 'inline-block',
-// };
-
 const DragHandle = SortableHandle(() =>  <span className="drag_handle">::</span>);
 
 const SortableItem = SortableElement(({blockId, value}) => {
-  // console.log(value);
-  // console.log(blockId);
   let content = "";
+  // NOTE we may want to explore different components with these different options
   switch (value.type) {
     case "verse":
     case "searchVerse":
-      // content = <div> <i>{value.title}</i><span>{value.text}</span> <DragHandle /></div>;
-      // break;
     case "note":
-      content = <Fragment> <Bit keyIndex={value.key} blockId={blockId} {...value} /> <DragHandle /></Fragment>
+      content = <Fragment>  <Bit keyIndex={value.key} blockId={blockId} {...value} /> </Fragment>
       break;
     default:
   }
@@ -50,7 +41,6 @@ const SortableItem = SortableElement(({blockId, value}) => {
 });
 
 const SortableList = SortableContainer( (props) => {
-  // console.log(props);
   props.items.map((value, index) =>  {
     value.key = index;
     return value;
@@ -76,23 +66,29 @@ export default class Compendium extends Component {
       dialogOpen: false,
       notePreview: false,
       note: '',
-      keysPressed:{}
+      keysPressed:{},
+      writePerms: false,
+      readPerms: false,
     };
-    // console.log(props);
   }
   
   componentDidMount(){
-    
-    // const path = 'blocks/'+ this.props.blockId +'/bits';
     listen('blocks/'+ this.props.blockId +'/bits').on("value", this.gotData, this.errData);
     listen('blocks/'+ this.props.blockId +'/title').once("value", this.gotBlockTitle, this.errData);
+    firebaseAuth().onAuthStateChanged((user) => {
+      checkWrite(this.state.id, user.uid).then(x => {
+        this.setState({ writePerms:  x });
+      });
+      checkRead(this.state.id, user.uid).then(x => {
+        this.setState({ readPerms:  x });
+      });
+    });
+    
   }
   
   componentWillReceiveProps(nextProps){
-    // console.log("compendium" ,nextProps);
-    // const oldpath = 'blocks/'+ this.props.blockId +'/bits';
+    this.setState({id: nextProps.blockId});
     listen('blocks/'+ this.props.blockId +'/bits').off();
-    // const path = 'blocks/'+ nextProps.blockId+'/bits';
     listen('blocks/'+ nextProps.blockId+'/bits').on("value", this.gotData, this.errData);
     listen('blocks/'+ nextProps.blockId +'/title' ).once("value", this.gotBlockTitle, this.errData);
     
@@ -100,18 +96,6 @@ export default class Compendium extends Component {
   }
   
   
-// accepted
-// Multiple keystroke detection is easy if you understand the concept
-// 
-// The way I do it is like this:
-
-// var map = {}; // You could also use an array
-// onkeydown = onkeyup = function(e){
-//     e = e || event; // to deal with IE
-//     map[e.keyCode] = e.type == 'keydown';
-//     /* insert conditional here */
-// }
-// 
   handleKeyUp = (e) => {
     let keysPressed = this.state.keysPressed;
     keysPressed[e.key] = false;
@@ -154,9 +138,7 @@ export default class Compendium extends Component {
   
   
   handleOnDrop = (e) => {
-    // console.log(e)
     e.stopPropagation();
-    // console.log('this happened');
     let data = JSON.parse(e.dataTransfer.getData("verseData"));
     e.target.removeAttribute("style");
     
@@ -206,6 +188,7 @@ export default class Compendium extends Component {
   
   render() {
     return (
+        
        <Paper  zDepth={1}>
          <div className="Compendium">
            <div>
@@ -214,63 +197,16 @@ export default class Compendium extends Component {
              </Tabs>
            </div>
            <div className="compendiumWindow">
-               <SortableList items={this.state.bits} blockId={this.props.blockId} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
-               <div className="defaultDragArea" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={(this.state.bits ? this.state.bits.length-1 : 0)}></div>
+             {( this.state.readPerms?
+                 <Fragment>
+                   <SortableList items={this.state.bits} blockId={this.props.blockId} axis="y" onSortEnd={this.onSortEnd} useDragHandle={true} /> 
+                   <div className="defaultDragArea" onDrop={this.handleOnDrop} onDragOver={this.handleDragOver} data-order={(this.state.bits ? this.state.bits.length-1 : 0)}></div>
+                 </Fragment>:
+                 null
+             )}
           </div> 
           <div>
             <Toolbar>
-              {/* <ToolbarGroup>
-                <FontAwesome
-                  name='edit'
-                  size='2x'
-                  onClick={this.toggleDialog}
-                />
-                <Dialog
-                  actions={[<FlatButton label='save' primary={true} onClick={this.saveNote} fullWidth={true} />]}
-                  modal={false}
-                  open={this.state.dialogOpen}
-                  onRequestClose={this.toggleDialog}
-                  >
-                    {(this.state.notePreview 
-                      ?<FontAwesome
-                        name='eye-slash'
-                        size='2x'
-                        onClick={this.togglePreview}
-                      />
-                      :<FontAwesome
-                        name='eye'
-                        size='2x'
-                        onClick={this.togglePreview}
-                      />
-                    )}
-                    
-                    {(!this.state.notePreview 
-                      ?<TextField
-                        id="note"
-                        onChange={this.handleTextChange}
-                        hintText="Write something profound"
-                        floatingLabelText="New Note"
-                        value={this.state.note}
-                        multiLine={true}
-                        fullWidth={true}
-                      />
-                      
-                      :<Markdown>
-                        {this.state.note}
-                      </Markdown>
-                    )}
-                    
-                  </Dialog>
-                </ToolbarGroup> */}
-              
-                   {/* <ToolbarGroup>
-                     <FontAwesome
-                        name='search'
-                        size='2x'
-                        onClick={this.handleSearch}
-                      />
-                      
-                   </ToolbarGroup> */}
                    <TextField
                      id="note"
                      onChange={this.handleTextChange}
@@ -281,13 +217,11 @@ export default class Compendium extends Component {
                      multiLine={true}
                      fullWidth={true}
                    />
-                   {/* TODO I need to create a textfield component that can be used to render the value with markup real time. */}
-                 {/* </TextField> */}
-                 {/* <Markdown>{this.state.note}</Markdown>  */}
               </Toolbar>
             </div> 
           </div>
        </Paper>
+       
     );
   }
 }

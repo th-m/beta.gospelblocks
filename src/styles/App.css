@@ -2,6 +2,16 @@
   text-align: center;
 } */
 
+/* @font-face {
+  font-family: 'palatino';
+  src: url('http://thomvaladez.com/rolly/palatino.ttf');
+} */
+
+/* @font-face {
+  font-family: palatino;
+  src: url(fonts/palatino.ttf);
+} */
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -149,7 +159,7 @@ body > ul , body > li{
 }
 
 .compendiumWindow, .libraryWindow{
-  height: calc(100vh - 255px);
+  height: calc(100vh - 239px);
   overflow-y: scroll;
   position: relative;
 }
@@ -183,10 +193,25 @@ body > ul , body > li{
 
 .Bit .drag_handle{
   position: absolute;
-  top:5px;
-  right:5px;
+  top: 9.5px;
+  left: 2px;
   opacity: .5;
 }
+
+/* span.drag_handle + span div{
+  display: inline-block;
+} */
+.shiftUp{
+  position: relative;
+  top:-18px;
+}
+.dragSpace{
+  padding-right: 12px !important;
+}
+.Bit ul{
+  padding-left: 20px;
+}
+
 
 .drop_zone{
   z-index: 99999;
@@ -199,6 +224,7 @@ body > ul , body > li{
 .Bit *, .Verse *{
   padding: 0;
   margin: 0;
+  line-height: 140%;
 }
 
 .Bit div:first-child, .Verse div:first-child{
@@ -216,6 +242,12 @@ body > ul , body > li{
   padding-top: 1em; 
   text-align: center;
   
+}
+
+.libraryWindow .Verse .text{
+  line-height: 140%;
+  font-size: 1em;
+  font-family: "palatino";
 }
 
 .bit_box_shadow{

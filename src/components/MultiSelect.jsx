@@ -9,18 +9,19 @@ export default class MultiSelect extends React.Component {
     super(props)
     this.state = {
       values: [],
-      selectedUsers:(props.selectedUsers ? props.selectedUsers: []),
+      selectedUsers:(props.selectedUsers ? Object.keys(props.selectedUsers).map(x => x): []),
       usersList:[],
     };
     
   
     if(props.selectedUsers){
-      props.selectedUsers.forEach(userId => {
+      Object.keys(props.selectedUsers).forEach(userId => {
         getUsername(userId).then(x => { 
           this.state.values.push(x);
         });
       })
     }
+    console.log(props);
   }
   
   componentDidMount(){

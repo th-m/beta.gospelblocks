@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {Fragment} from 'react';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
@@ -145,16 +145,6 @@ export default class Login extends React.Component {
               >
               <TextField
                 required
-                id="username"
-                hintText="awesome_thom"
-                floatingLabelText="User Name"
-                fullWidth={true}
-                errorText={(this.state.usernameError ? this.state.usernameError : null)}
-                onKeyDown={this.handleKeyDown}
-                onChange={this.inputChange}
-              /><br />
-              <TextField
-                required
                 id="email"
                 hintText="user@email.com"
                 floatingLabelText="Email"
@@ -162,7 +152,21 @@ export default class Login extends React.Component {
                 fullWidth={true}
                 onKeyDown={this.handleKeyDown}
                 onChange={this.handleEmailChange}
-              /><br />
+              /><br /> 
+              { (this.state.authed ? null :  
+              <Fragment>
+                <TextField
+                  required
+                  id="username"
+                  hintText="awesome_thom"
+                  floatingLabelText="User Name"
+                  fullWidth={true}
+                  errorText={(this.state.usernameError ? this.state.usernameError : null)}
+                  onKeyDown={this.handleKeyDown}
+                  onChange={this.inputChange}
+                /><br />
+              </Fragment>          
+              ) }
               <TextField
                 required
                 id="pw"

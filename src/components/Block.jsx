@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { listen, update, reduceList } from '../helpers/database';
+import { listen, update, reduceList, checkWrite, checkRead } from '../helpers/database';
 
 import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
@@ -10,14 +10,16 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 
 
 const SortableItem = SortableElement(({value}) => {
+  
   return (
     <li>
       <BlockNavItem blockId={value.id} redirect={value.redirect} updateCompendium={value.updateCompendium} uid={value.uid}/>
     </li>
   );
+  
 });
 
-const SortableList = SortableContainer(({items}) => {
+const SortableList = SortableContainer(({ items}) => {
   
   return (
     <ul>
@@ -26,6 +28,7 @@ const SortableList = SortableContainer(({items}) => {
       ))}
     </ul>
   );
+  
 });
 
 export default class Block extends Component {
@@ -40,7 +43,8 @@ export default class Block extends Component {
       compendiumId: this.props.match.params.blockId,
       uid: ( this.props.user ? this.props.user.uid : false ),
     };
-    // console.log(props);
+    
+    // console.log(props.user);
   }
   
   
@@ -51,9 +55,21 @@ export default class Block extends Component {
   }
   
   
+  
   componentWillReceiveProps(nextProps){
     //TODO ParentBlockId needs to relate to a parent not previous.
     // console.log('this never fired', nextProps);
+    console.log(nextProps);
+    
+    
+    // this.setState({readPerms: () => checkRead(nextProps.match.params.blockId, nextProps.user.uid)});
+    // this.setState({writePerms: checkWrite(nextProps.match.params.blockId, nextProps.user.uid)});
+    // if(nextProps.match.params.blockId)
+    //   this.setState({id: nextProps.match.params.blockId});
+    // 
+    // if(nextProps.user.id)
+    //   this.setState({uid:nextProps.user.id});
+      
     const path = 'blocks/'+ nextProps.match.params.blockId;
     this.setState({parentBlockId: this.state.id});
     listen(path).on("value", this.gotData, this.errData);
@@ -67,6 +83,14 @@ export default class Block extends Component {
   // componentWillUpdate(){
   //   console.log('this.props', this.props);
   // }
+  checkReadPerm = () => {
+    console.log("this thing fired fool", this.state.id, this.state.uid);
+    return checkRead(this.state.id, this.state.uid);
+  }
+  
+  checkWritePerm = () => {
+    return checkWrite(this.state.id, this.state.uid);
+  }
   
   errData = (error) => {
     console.log("errData", error);
@@ -110,11 +134,11 @@ export default class Block extends Component {
       <div>
         <div className="nav_items">
           <SortableList items={this.state.children} axis="x" onSortEnd={this.onSortEnd} useDragHandle={true}  />
-          <CreateBlock parentBlockId={this.state.id} uid={(this.props.user ? this.props.user.uid : null)}/>
+          {(this.state.writePerms ? <CreateBlock parentBlockId={this.state.id} uid={(this.props.user ? this.props.user.uid : null)}/> : null)}
         </div>
         <div className="study_container">
           <Library  blockId={this.state.compendiumId} />
-          <Compendium blockId={this.state.compendiumId} uid={this.state.uid} />
+          <Compendium blockId={this.state.compendiumId} uid={this.state.uid} writePerms={this.checkWritePerm}/>
         </div>
       </div>
     );

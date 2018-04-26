@@ -1,18 +1,24 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import Markdown from 'react-remarkable';
-import {  update } from '../helpers/database';
+import {  update, checkWrite } from '../helpers/database';
 import FontAwesome  from 'react-fontawesome';
 import { deleteBit } from '../helpers/database';
+import { SortableHandle } from 'react-sortable-hoc';
+import { firebaseAuth } from '../config/constants';
+
+const DragHandle = SortableHandle(() =>  <span className="drag_handle">::</span>);
 
 export default class extends Component {
   constructor(props){
     super(props);
     this.state = {
       editMode: false,
+      blockId:this.props.blockId,
       text: this.props.text,
+      writePerms: false,
     };
-    // console.log(props);
+    console.log(props);
   }
   
   componentWillReceiveProps(nextProps){
@@ -34,11 +40,14 @@ export default class extends Component {
   }
   
   handleNoteSave = () => {
-    if(this.state.editMode){
-      console.log(`blocks/${this.props.blockId}/bits/${this.props.keyIndex}/text`, this.state.text);
-      update(`blocks/${this.props.blockId}/bits/${this.props.keyIndex}/text`, this.state.text )
+    if(this.state.writePerms){
+      
+      if(this.state.editMode){
+        console.log(`blocks/${this.props.blockId}/bits/${this.props.keyIndex}/text`, this.state.text);
+        update(`blocks/${this.props.blockId}/bits/${this.props.keyIndex}/text`, this.state.text )
+      }
+      this.setState({editMode:!this.state.editMode});
     }
-    this.setState({editMode:!this.state.editMode});
     
   }
   deleteBit = () => {
@@ -50,18 +59,40 @@ export default class extends Component {
     this.setState({text: e.target.value});
   }
   
+  componentDidMount(){
+    firebaseAuth().onAuthStateChanged((user) => {
+      checkWrite(this.state.blockId, user.uid).then(x => {
+        this.setState({ writePerms:  x });
+      });
+    
+    });
+    
+  }
   render(){
+    let displayText = "<span class='dragSpace'>&nbsp;</span>";
+
+    if (this.props.type.includes('verse') || this.props.type.includes('searchVerse'))
+      displayText += "<i>"+this.props.title+"</i>";
+      
+    if (this.state.text.substring(1, 2).match(/^(#|\*|\|)$/))
+      displayText += '\n';
+    
+    displayText += this.state.text;
+    
+    
     return (
-      <span onDoubleClick={this.handleDoubleClick} onTouchStart={this.handleButtonPress} onTouchEnd={this.handleButtonRelease} onMouseDown={this.handleButtonPress} onMouseUp={this.handleButtonRelease}>
-        {(this.props.type.includes('verse') || this.props.type.includes('searchVerse') ? <i>{this.props.title}</i>: null) }
+      <span onDoubleClick={this.handleDoubleClick} onTouchStart={this.handleButtonPress} onTouchEnd={this.handleButtonRelease} >
+        {(this.state.writePerms? <DragHandle /> : null)}
         {(!this.state.editMode ?
-          <Markdown options={{html: true, linkify: true, typographer: true}}>{this.state.text}</Markdown> :
+          <Markdown options={{html: true, linkify: true, typographer: true}}>
+             {displayText}
+           </Markdown> :
           <span className="editText" >
             <span className="saveBit" >
-              <FontAwesome name='pencil' onClick={this.handleNoteSave} />
+              <FontAwesome name='times-circle' onClick={this.handleNoteSave} />
             </span>
             <span className="deleteBit" >
-              <FontAwesome name='times-circle' onClick={this.deleteBit} />
+              <FontAwesome name='trash' onClick={this.deleteBit} />
             </span>
             <TextField
               onChange={this.handleTextChange}
