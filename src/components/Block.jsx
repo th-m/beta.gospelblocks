@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { listen, update, reduceList, checkWrite, checkRead } from '../helpers/database';
-
+import { firebaseAuth } from '../config/constants';
 import BlockNavItem from './BlockNavItem';
 import CreateBlock from './CreateBlock';
 import Library from './Library';
@@ -42,6 +42,7 @@ export default class Block extends Component {
       id: this.props.match.params.blockId,
       compendiumId: this.props.match.params.blockId,
       uid: ( this.props.user ? this.props.user.uid : false ),
+      writePerms: false,
     };
     
     // console.log(props.user);
@@ -51,10 +52,13 @@ export default class Block extends Component {
   componentDidMount(){
     const path = 'blocks/'+ this.state.id;
     listen(path).on("value", this.gotData, this.errData);
+    firebaseAuth().onAuthStateChanged((user) => {
+      checkWrite(this.state.id, user.uid).then(x => {
+        this.setState({ writePerms:  x });
+      });
+    })
     // this.props.updateBlockId(this.state.id);
   }
-  
-  
   
   componentWillReceiveProps(nextProps){
     //TODO ParentBlockId needs to relate to a parent not previous.
